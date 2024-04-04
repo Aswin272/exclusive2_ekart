@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .error-message {
+            color: red;
+            margin-top: 5px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px; /* Add space below the form */
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        /* Add space between image field and the preceding field */
+        .field-spacing {
+            margin-bottom: 20px; /* Adjust as needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>Product Update</h1>
+    <form method="POST">
+        {% csrf_token %}
+        
+        {{ form.non_field_errors }}
+        
+        {% for field in form %}
+            <div class="{% if field.name == 'image' %}field-spacing{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="error-message">{{ field.errors|join:", " }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

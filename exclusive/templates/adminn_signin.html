@@ -1,0 +1,37 @@
+{% extends "header.html" %}
+
+
+{% block content %}
+
+    <section class="section">
+        <h2 class="form_title">Login to your account</h2>
+            <p class="auth_p">Enter your details below</p>
+      
+            {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+        <div class="auth_content">
+          <form action="" class="auth_form" method="POST">
+            {% csrf_token %}
+            <div class="form_group">
+              <input type="text" placeholder="Email" name="username" class="form_input" />
+            </div>
+            <div class="form_group form_pass">
+              <input type="password" name="password" placeholder="Password" class="form_input" />
+            </div>
+            <div class="form_group">
+              <button class="form_btn">
+                <a href="#" class="form_link">Login</a>
+              </button>
+            </div>
+            
+          </form>
+        </div>
+      </div>
+    </section>
+
+    {% endblock content %}

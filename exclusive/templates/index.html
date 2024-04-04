@@ -1,0 +1,68 @@
+{% extends "header.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    {% block headerimage %}
+    {% include "headerImage.html" %}
+    {% endblock headerimage %}
+
+    {% block category %}
+    {% include "category.html" %}
+    {% endblock  %}
+
+
+    {% block best_selling_product %}
+    {% include "best_selling_product.html" %}
+    {% endblock  %}
+
+
+    <section class="section">
+      <div class="container">
+        <div class="trending">
+          <div class="trending_content">
+            <p class="trending_p">categories</p>
+            <h2 class="trending_title">Enhance Your Music Experience</h2>
+            <a href="#" class="trending_btn">Buy Now!</a>
+          </div>
+          <img src="{% static "image//speaker.png" %}" alt="" class="trending_img" />
+        </div>
+      </div>
+    </section>
+
+
+    {% block product_list %}
+    {% include "product_list.html" %}
+    {% endblock  %}
+
+
+
+    {% block new_arrivals %}
+    {% include "new_arrivals.html" %}
+    {% endblock new_arrivals %}
+
+
+    
+    <section class="section">
+      <div class="container services_container">
+        <div class="service">
+          <img src="{% static "image//icons/service-1.png" %}" alt="" class="service_img" />
+          <h3 class="service_title">FAST AND FREE DELIVERY</h3>
+          <p class="service_p">Lorem ipsum dolor sit amet consectetur.</p>
+        </div>
+        <div class="service">
+          <img src="{% static "image//icons/service-2.png" %}" alt="" class="service_img" />
+          <h3 class="service_title">24/7 SUPPORT</h3>
+          <p class="service_p">Lorem ipsum dolor sit amet consectetur.</p>
+        </div>
+        <div class="service">
+          <img src="{% static "image//icons/service-3.png" %}" alt="" class="service_img" />
+          <h3 class="service_title">MONEY BACK GUARANTY</h3>
+          <p class="service_p">Lorem ipsum dolor sit amet consectetur.</p>
+        </div>
+      </div>
+    </section>
+
+    
+    {% endblock content %}

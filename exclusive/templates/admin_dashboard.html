@@ -1,0 +1,130 @@
+{% comment %} <h1>dashboard</h1>
+<div>
+    
+    <h2><a class="btn btn-success" href="{% url 'category' %}">category</a></h2>
+    <h2><a class="btn btn-success" href="{% url 'product' %}">Product</a></h2>
+
+</div>
+<a href="{% url 'logout' %}">logout</a>
+ {% endcomment %}
+
+
+
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Admin Panel</title>
+     <style>
+         body {
+             font-family: Arial, sans-serif;
+             margin: 0;
+             padding: 0;
+             background-color: #f4f4f4;
+             border-top-left-radius: 0; /* Remove curve from top left corner */
+         }
+         .sidebar {
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 250px;
+             height: 100%;
+             background-color: #000;
+             color: #fff;
+             padding-top: 20px;
+             border-top-left-radius: inherit; /* Inherit from body */
+             border-bottom-left-radius: 20px;
+             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+         }
+         .sidebar-inner {
+             background-color: #222;
+             padding: 10px;
+             border-top-left-radius: inherit; /* Inherit from body */
+             border-bottom-left-radius: 20px;
+             margin-bottom: 20px;
+         }
+         .sidebar ul {
+             list-style-type: none;
+             padding: 0;
+             margin: 0;
+         }
+         .sidebar ul li {
+             padding: 10px;
+             border-bottom: 1px solid #444;
+         }
+         .sidebar ul li a {
+             color: #fff;
+             text-decoration: none;
+             display: block;
+         }
+         .sidebar ul li a:hover {
+             background-color: #444;
+         }
+         .content {
+             margin-left: 250px;
+             margin-top: 50px; /* Increased space between header and content */
+             padding: 20px;
+             background-color: #fff;
+             border-top-right-radius: 20px; /* Apply curve to top right corner */
+             border-bottom-right-radius: 20px;
+             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+             position: relative; /* Required for absolute positioning */
+         }
+         .content::before,
+         .content::after {
+             content: '';
+             position: absolute;
+             top: -50px; /* Increased space from the top */
+             left: 0;
+             right: 0;
+             height: 50px; /* Adjust height as needed */
+             background-color: #000; /* Black color */
+             z-index: -1; /* Behind the content */
+         }
+         .header {
+             background-color: #333;
+             color: #fff;
+             padding: 10px;
+             text-align: center;
+             border-top-right-radius: 20px; /* Apply curve to top right corner */
+         }
+         .container {
+             display: flex;
+             justify-content: space-between;
+         }
+         .main {
+             flex-grow: 1;
+             padding: 20px;
+         }
+     </style>
+ </head>
+ <body>
+     <div class="sidebar">
+         <div class="sidebar-inner">
+             <ul>
+                 <li><a href="#">Dashboard</a></li>
+                 <li><a href="{% url 'product_list' %}">Products</a></li>
+                 <li><a href="{% url 'category' %}">Categories</a></li>
+                 <li><a href="{% url 'admin-customers' %}" class="hover-effect">customers</a></li>
+                 <li><a href="{% url 'logout' %}">logout</a></li>
+             </ul>
+         </div>
+     </div>
+     <div class="content">
+         <div class="header">
+             <h1>Admin Panel</h1>
+         </div>
+         <div class="container">
+             <div class="main">
+                 <!-- Main content goes here -->
+                 <h2>Welcome to the Admin Panel</h2>
+                 <p>This is a simple admin panel template.</p>
+             </div>
+             <!-- Add additional content or sidebar here if needed -->
+         </div>
+     </div>
+ </body>
+ </html>
+ 

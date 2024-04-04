@@ -1,0 +1,39 @@
+{% extends "header.html" %}
+
+
+
+    {% block content %}
+    <section class="section">
+      <div class="auth_container">
+        <div class="auth_img">
+          <img src="./image/auth-image.png" alt="" class="auth_image" />
+        </div>
+        <div class="auth_content">
+          <form action="" class="auth_form" method="POST">
+            {% csrf_token %}
+            <h2 class="form_title">sign in  your account</h2>
+            <p class="auth_p">Enter your details below</p>
+            <div class="form_group">
+              <input type="text" name="name"  placeholder="Name" class="form_input" />
+            </div>
+            
+            <div class="form_group form_pass">
+              <input type="password" name="password" placeholder="Password" Required class="form_input" />
+            </div>
+            <div class="form_group">
+              <button class="form_btn"><a href="#" class="form_link">Create Account</a></button>
+            </div>
+            <div class="form_group">
+              <span
+                >Already have an account?
+                <a href="{% url 'signup'%}" class="form_auth_link">Login</a></span
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+
+
+    {% endblock content %}

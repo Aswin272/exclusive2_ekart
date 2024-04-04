@@ -1,0 +1,177 @@
+{% load static %}
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            border-top-left-radius: 0; /* Remove curve from top left corner */
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            padding-top: 20px;
+            border-top-left-radius: inherit; /* Inherit from body */
+            border-bottom-left-radius: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar-inner {
+            background-color: #222;
+            padding: 10px;
+            border-top-left-radius: inherit; /* Inherit from body */
+            border-bottom-left-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #444;
+        }
+        .content {
+            margin-left: 250px;
+            margin-top: 20px; /* Small space between header and content */
+            padding: 20px;
+            background-color: #fff;
+            border-top-right-radius: 20px; /* Apply curve to top right corner */
+            border-bottom-right-radius: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            position: relative; /* Required for absolute positioning */
+        }
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            border-top-right-radius: 20px; /* Apply curve to top right corner */
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .main {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 100px;
+        }
+        .form-group input[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #444;
+        }
+    </style>
+    <!-- Include Cropper.js library -->
+    
+    
+</head>
+<body>
+      {% comment %} <div class="main">
+    <h1>Signup form </h1>
+    
+
+    <form method="POST" action="">
+        {% csrf_token %}
+      <label for="">Name</label>
+      <input type="text" id="name" name="name" placeholder="enter your name">
+
+      <div class="wrap pb-3"> <button type="submit">Submit</button></div>
+
+    </form>
+  </div> {% endcomment %}
+    <div class="sidebar">
+        <div class="sidebar-inner">
+            <ul>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#" class="hover-effect">Categories</a></li>
+                <li><a href="#">Orders</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h1>Category Management</h1>
+        </div>
+        <div class="container">
+            <div class="main">
+                <!-- Main content goes here -->
+                <div class="form-container">
+                    <h2>Add New Category</h2>
+                    <form method="POST" enctype="multipart/form-data">
+
+                        {% csrf_token %}
+                        {{form.as_p}}
+                        
+                        
+                            <input type="submit" value="Add Category">
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+    
+</html>
+
+

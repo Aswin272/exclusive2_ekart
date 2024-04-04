@@ -1,0 +1,49 @@
+{% extends "header.html" %}
+
+{% block content %}
+
+<div class="container">
+        <h2>OTP Verification</h2>
+        {% if error_message %}
+            <p>{{ error_message }}</p>
+        {% endif %}
+        <form action="" method="post">
+            {% csrf_token %}
+            <!-- Display OTP input fields -->
+            <input type="text" name="otp" required>
+           
+            <button type="submit">Submit</button>
+        </form>
+        <!-- Timer for OTP expiration -->
+        <div id="timer"></div>
+        <!-- Resend OTP button -->
+        <form action="{% url 'resend_otp' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Resend OTP</button>
+        </form>
+    </div>
+
+    <script>
+        // Set the timer duration in seconds
+        const timerDuration = 30;
+        let timer = timerDuration;
+
+        // Update timer function
+        function updateTimer() {
+            const timerDisplay = document.getElementById('timer');
+            timerDisplay.innerHTML = `Resend OTP in ${timer} seconds`;
+            if (timer > 0) {
+                timer--;
+                setTimeout(updateTimer, 1000); // Update timer every second
+            }
+        }
+
+        // Start the timer when the page loads
+        window.onload = function () {
+            updateTimer();
+        };
+    </script>
+    
+
+{% endblock content %}
+

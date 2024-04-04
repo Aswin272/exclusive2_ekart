@@ -1,0 +1,22 @@
+{% load static %}
+
+<section class="section">
+    <div class="container">
+      <div class="section_category">
+        <p class="section_category_p">categories</p>
+      </div>
+      <div class="section_header">
+        <h3 class="section_title">Browse by Category</h3>
+      </div>
+      <div class="categories">
+        {% for i in category %}
+        <div class="category">
+          <img src="{{i.image.url}}" alt="" class="category_icon" />
+          <p class="category_name">{{i.name}}</p>
+        </div>
+        
+        
+        {% endfor %}
+      </div>
+    </div>
+  </section>
