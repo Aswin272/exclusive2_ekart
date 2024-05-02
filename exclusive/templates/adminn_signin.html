@@ -18,10 +18,10 @@
           <form action="" class="auth_form" method="POST">
             {% csrf_token %}
             <div class="form_group">
-              <input type="text" placeholder="Email" name="username" class="form_input" />
+              <input type="text" placeholder="username" name="username" class="form_input" required/>
             </div>
             <div class="form_group form_pass">
-              <input type="password" name="password" placeholder="Password" class="form_input" />
+              <input type="password" name="password" placeholder="Password" class="form_input" required/>
             </div>
             <div class="form_group">
               <button class="form_btn">

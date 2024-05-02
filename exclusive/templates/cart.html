@@ -1,0 +1,83 @@
+{% extends "header.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="small-container cart-page">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+            {% for item in cart_items %}
+            <tr>
+                <td>
+                    <div class="cart-info">
+                        <img src="{{ item.product.image.url }}">
+                        <div>
+                            <p>{{ item.product.name }}</p>
+                            <small>Price: {{ item.product.price }}</small><br>
+                            <a href="{% url 'cartitem-remove' item.product.id %}">Remove</a>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <form method="POST" id="update-cart-form-{{ item.pk }}" class="update-cart-form"
+                        data-cart-item-id="{{ item.pk }}">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{item.product.quantity}}">
+                    </form>
+                </td>
+                <td id="subtotal_{{ item.pk }}">${{ item.total_price }}</td> <!-- Unique ID for subtotal -->
+            </tr>
+            {% endfor %}
+        </table>
+        <div class="total-price">
+            <table>
+                <tr>
+                    <td>Total</td>
+                    <td>{{ total_price }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="checkout-button">
+            <a href="{% url 'checkout' %}"><button>Proceed to Checkout</button></a>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.update-cart-form input[name="quantity"]').change(function() {
+            var form = $(this).closest('form');
+            var cartItemId = form.data('cart-item-id');
+            var quantity = $(this).val();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "update-cart-item" 0 %}'.replace('0', cartItemId),
+                data: {
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+                    'quantity': quantity
+                },
+                dataType: 'json',
+                success: function(response) {
+                    // Update the cart view with the new data
+                    $('.cart-items-container').html(response.cart_items_html);
+                    $('.total-price td:last-child').text(response.total_price); // Update total price
+
+                    // Update subtotal for each item
+                    $.each(response.subtotals, function(itemId, subtotal) {
+                        $('#subtotal_' + itemId).text(subtotal);
+                    });
+                },
+                error: function(xhr, errmsg, err) {
+                    // Handle error
+                    console.log('Error: ' + xhr.status + ': ' + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+{% endblock content %}

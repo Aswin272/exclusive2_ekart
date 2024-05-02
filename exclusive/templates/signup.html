@@ -15,7 +15,7 @@
             <h2 class="form_title">Create your account</h2>
             <p class="auth_p">Enter your details below</p>
             {% if error_message %}
-                <div class="error_message">{{ error_message }}</div>
+                <div class="error_message color:red">{{ error_message }}</div>
             {% endif %}
             <div class="form_group">
               <input type="text" name="username" placeholder="Name" class="form_input" />
@@ -41,7 +41,7 @@
               >
             </div>
           </form>
-          <a title="Google" href="/accounts/google/login/?process=login">Google</a>
+          <a title="Google" href="/accounts/google/login/">Google</a>
 
         </div>
       </div>

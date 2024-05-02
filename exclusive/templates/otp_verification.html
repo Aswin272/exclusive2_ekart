@@ -2,12 +2,14 @@
 
 {% block content %}
 
+
+
 <div class="container">
         <h2>OTP Verification</h2>
         {% if error_message %}
             <p>{{ error_message }}</p>
         {% endif %}
-        <form action="" method="post">
+        <form action="" method="POST">
             {% csrf_token %}
             <!-- Display OTP input fields -->
             <input type="text" name="otp" required>
@@ -26,22 +28,42 @@
     <script>
         // Set the timer duration in seconds
         const timerDuration = 30;
-        let timer = timerDuration;
-
+        let timer = parseInt(localStorage.getItem('timer')) || timerDuration;
+        let timerRunning = false;
+    
         // Update timer function
         function updateTimer() {
             const timerDisplay = document.getElementById('timer');
             timerDisplay.innerHTML = `Resend OTP in ${timer} seconds`;
             if (timer > 0) {
                 timer--;
+                localStorage.setItem('timer', timer); // Store timer value in localStorage
+                timerRunning = true;
                 setTimeout(updateTimer, 1000); // Update timer every second
+            } else {
+                timerRunning = false;
             }
         }
-
+    
         // Start the timer when the page loads
         window.onload = function () {
             updateTimer();
         };
+    
+        // Reset timer when Resend OTP button is clicked
+        document.getElementById('resendForm').addEventListener('submit', function() {
+            timer = timerDuration;
+            localStorage.setItem('timer', timer);
+        });
+    
+        // Check if form is submitted successfully (you might need to adjust this part according to your logic)
+        document.querySelector('form').addEventListener('submit', function() {
+            // If OTP submission is not successful, do not reset the timer
+            if (!timerRunning) {
+                timer = parseInt(localStorage.getItem('timer')) || timerDuration;
+                updateTimer();
+            }
+        });
     </script>
     
 

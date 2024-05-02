@@ -13,6 +13,16 @@
             {% csrf_token %}
             <h2 class="form_title">sign in  your account</h2>
             <p class="auth_p">Enter your details below</p>
+
+            {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
             <div class="form_group">
               <input type="text" name="name"  placeholder="Name" class="form_input" />
             </div>

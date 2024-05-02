@@ -1,0 +1,37 @@
+{% extends "header.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container">
+    <div class="userprofile-leftside">
+
+        <ul class="UserMenu">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="{% url 'user-address' %}">Manage Address</a></li>
+            <li><a href="{% url 'orders' %}">Orders</a></li>
+            <li><a href="{% url 'user-profile' %}" >Edit Profile</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+    </div>
+
+
+    <div class="userprofile-rightside">
+        <div class="user-details">
+            <p>Name: John Doe</p>
+            <p>Email: john.doe@example.com</p>
+        </div>
+    </div>
+    
+
+
+
+</div>
+
+
+
+
+{% endblock content %}
+
+

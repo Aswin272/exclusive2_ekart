@@ -1,5 +1,5 @@
 {% extends "header.html" %}
-
+{% load static %}
 
 
 
@@ -11,13 +11,41 @@
     <li class="breadcrumb-item active" aria-current="page">All Products</li>
   </ol>
 </nav>
+
+<form method="POST" action="{% url 'sort' %}">
+  
+  <div class="product-select-box container mb-5">
+      <div style="" class="product-short">
+          <p>Sort By:</p>
+          {% csrf_token %}
+          <select class="nice-select" name="sort_by">
+            
+              <option value="">Default</option>
+              <option value="priceHigh">Price (Low &gt; High)</option>
+              <option value="priceLow">Price (High &gt; Low)</option>
+              <option value="nameAsce">Name (A - Z)</option>
+              <option value="nameDesc">Name (A - Z)</option>
+              <option value="newArrivals ">Release Date</option> <!-- corrected spelling -->
+          </select>
+          <button type="submit">Sort</button>
+      </div>
+  </div>
+</form>
+
 <div class="container">
-    <h1 style="background-color: #007bff;
-    color: #fff;
-    padding: 20px 0;
-    text-align: center;
-    margin-bottom: 20px;" class="mt-5">All Products</h1>
+
+  <form method="POST"  class="all-products-search">
+    <input
+      type="text"
+      class="nav_input"
+      placeholder="search here...." name="search" />
+
+    <a href=""><img src="{% static "image//search.png" %}" alt="" class="nav_search" /></a>
+  </form>
+
 </div>
+
+
 <div class="products container">
     {% for product in products %}
     <a href="{% url 'product-detail' product.id %}"><div class="card">

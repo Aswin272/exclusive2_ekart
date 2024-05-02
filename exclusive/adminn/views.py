@@ -6,6 +6,10 @@ from . forms import UpdateCategoryForm,ProductForm,ProductImageForm,ProductUpdat
 from customers.models import Customers
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.exceptions import MultipleObjectsReturned
+from orders.models import Order,OrderItem
+from django.http import JsonResponse
+from django.db.models import F, ExpressionWrapper, DecimalField
 
 # Create your views here.
 
@@ -16,9 +20,16 @@ def adminn(request):
         return redirect('adminn_dashboard') 
     if request.method=='POST':       
         username=request.POST.get('username')
-        password=request.POST.get('password')      
-        user=authenticate(username=username,password=password)       
-        if user is not None:          
+        password=request.POST.get('password')
+             
+        try:
+            user = authenticate(username=username, password=password)
+        except MultipleObjectsReturned:
+            
+            messages.error(request, "Invalid username or password. Please try again....")
+            return render(request, 'adminn_signin.html')  
+          
+        if user is not None and user.is_superuser:          
             request.session['superuser']=username
             return render(request,'admin_dashboard.html')   
         else:
@@ -63,8 +74,14 @@ def add_category(request):
         if request.method=='POST':
             form=AddCategoryForm(request.POST,request.FILES)
             if form.is_valid():
-                form.save()
-                return redirect('category')
+                name = form.cleaned_data['name']
+                
+                if Category.objects.filter(name=name).exists():
+                    form.add_error('name', 'A category with the same name already exists.')
+                else:
+                    
+                    form.save()
+                    return redirect('category')
         else:
             form=AddCategoryForm()
         return render(request,'add_category.html',{'form':form})
@@ -106,7 +123,7 @@ def active_unactive_category(request,pk):
 @never_cache
 def product_list(request):
     if 'superuser' in request.session:
-        products=Product.objects.all()
+        products=Product.objects.all().order_by('id')
         return render(request,'admin_product_list.html',{'products':products})
     return redirect('adminn')
 
@@ -126,7 +143,11 @@ def add_products(request):
                 if quantity < 0:
                     product_form.add_error('quantity', 'Quantity must be greater than or equal to zero.')
                 # If both price and quantity are valid, proceed with saving the form
-                if price >= 0 and quantity >= 0:
+                
+                name=product_form.cleaned_data['name']
+                if Product.objects.filter(name=name).exists():
+                    product_form.add_error('name', 'A product with the same name already exists.')
+                if price >= 0 and quantity >= 0 and not Product.objects.filter(name=name).exists():
                     product = product_form.save()
                     product_id = product.id
                     
@@ -138,6 +159,7 @@ def add_products(request):
                 print('Form is not valid:', product_form.errors)
         else:
             product_form = ProductForm()
+            
         
         return render(request, 'admin_add_product.html', {'frm': product_form})
     return redirect('adminn')
@@ -154,7 +176,7 @@ def product_update(request, pk):
                     price = form.cleaned_data.get('price')
                     quantity = form.cleaned_data.get('quantity')
                     
-                    # Check if price and quantity are valid
+                    
                     if price is not None and price < 0:
                         form.add_error('price', "Price cannot be less than 0.")
                     if quantity is not None and quantity < 0:
@@ -193,7 +215,7 @@ def active_unactive_product(request,pk):
 @never_cache
 def admin_customer_list(request):
     if 'superuser' in request.session:
-        customers=Customers.objects.all()
+        customers=Customers.objects.all().order_by('id')
         return render(request,'admin_customers.html',{'customers':customers})
     return redirect('adminn')
 
@@ -224,3 +246,91 @@ def logout(request):
     if 'superuser' in request.session:
         request.session.flush()       
         return redirect('adminn')
+    
+    
+    
+def uploadImage(request,pk):
+    if 'superuser' in request.session:
+        product=Product.objects.get(id=pk)
+        product_id=product.id
+        print(product_id)
+        print(product)
+        if request.method=='POST':
+            images = request.FILES.getlist('image')
+            print(images)
+            for img in images:
+                ProductImage.objects.create(product_id=product_id, image=img)
+            return redirect('product_list')
+    
+    return render(request,'uploadImage.html')
+
+
+def adminorders(request):
+    print("triggered")
+    if 'superuser' in request.session:
+        
+        if request.method == 'POST':
+        
+        # Get the order item ID and new status from the AJAX request
+            orderitem_id = request.POST.get('orderitem_id')
+            new_status = request.POST.get('status')
+
+            try:
+                # Retrieve the order item from the database
+                orderitem = OrderItem.objects.get(id=orderitem_id)
+                
+                # Update the status of the order item
+                orderitem.status = new_status
+                orderitem.save()
+
+                # Return a success response
+                return JsonResponse({'success': True})
+
+            except OrderItem.DoesNotExist:
+                # Return an error response if the order item is not found
+                return JsonResponse({'success': False, 'error': 'Order item does not exist'})
+
+        # Return a bad request response if the request method is not POST
+        # return JsonResponse({'success': False, 'error': 'Bad request'})
+            
+            
+        
+        
+        all_orders = Order.objects.prefetch_related('orderitem_set').order_by('-created_at')
+        
+        for order in all_orders:
+            for orderitem in order.orderitem_set.all():
+                orderitem.total_price = orderitem.quantity * orderitem.product.price
+        
+        return render(request,'admin-allorders.html',{'orders':all_orders})
+    return redirect('signin')
+    
+    
+    
+    
+    
+# def update_status(request):
+#     print("acieved")
+#     if request.method == 'POST':
+        
+#         # Get the order item ID and new status from the AJAX request
+#         orderitem_id = request.POST.get('orderitem_id')
+#         new_status = request.POST.get('status')
+
+#         try:
+#             # Retrieve the order item from the database
+#             orderitem = OrderItem.objects.get(id=orderitem_id)
+            
+#             # Update the status of the order item
+#             orderitem.status = new_status
+#             orderitem.save()
+
+#             # Return a success response
+#             return JsonResponse({'success': True})
+
+#         except OrderItem.DoesNotExist:
+#             # Return an error response if the order item is not found
+#             return JsonResponse({'success': False, 'error': 'Order item does not exist'})
+
+#     # Return a bad request response if the request method is not POST
+#     return JsonResponse({'success': False, 'error': 'Bad request'})

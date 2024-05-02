@@ -1,0 +1,97 @@
+{% extends "header.html" %}
+
+
+
+{% block content %}
+
+<div class="container mt-5">
+<table class="table table-stripped table-dark container">
+    <thead class="thead-dark ">
+      <tr>
+        <th>order id</th>
+        <th scope="col">Image</th>
+        <th scope="col">Product</th>
+        <th scope="col">Buyer</th>
+        <th>Date</th>
+        <th>Quantity</th>
+        <th scope="col">Status</th>
+        <th>payment</th>
+        <th>total price</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for order in orders %}
+        {% for orderitem in order.orderitem_set.all %}
+      <tr>
+        <td>{{orderitem.id}}</td>
+        <td><img style="width:50px;height:50px" src="{{orderitem.product.image.url}}" alt="image"></td>
+        <td>{{orderitem.product.name}}</td>
+        <td>{{order.user}}</td>
+        <td>{{order.created_at}}</td>
+        <td>{{orderitem.quantity}}</td>
+        <td>
+            {% if orderitem.is_cancelled %}
+            <p style="color:red">cancelled</p>
+            {% else %}
+            <form action="" method="POST">
+                {% csrf_token %}
+            <select class="status-select" name="status">
+                {% for choice in orderitem.STATUS_CHOICES %}
+                    <option value="{{ choice.0 }}" {% if choice.0 == orderitem.status %}selected{% endif %}>
+                        {{ choice.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+                
+            
+            {% endif %}
+            
+        </td>
+        <td>{{order.payment}}</td>
+        <td>{{ orderitem.total_price }}</td>
+      </tr>
+      {% endfor %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Add event listener to each dropdown with class "status-select"
+        $('.status-select').change(function() {
+            var newStatus = $(this).val();
+            var orderitemId = $(this).closest('tr').find('td:first').text();  // Get order item ID from the first column of the current row
+
+            // Include the CSRF token in the data sent to the server
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+            $.ajax({
+                url: '?update_status/',  // Replace with the actual URL of your Django view
+                method: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': csrfToken,  // Include the CSRF token in the data
+                    'orderitem_id': orderitemId,
+                    'status': newStatus
+                },
+                success: function(response) {
+                    if (response.success) {
+                        console.log('Status updated successfully');
+                    } else {
+                        console.error('Error updating status:', response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error updating status:', error);
+                }
+            });
+        });
+    });
+</script>
+
+
+{% endblock content %}

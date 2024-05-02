@@ -15,6 +15,7 @@
 
       
     <title>Home - Exclusive E-Commerce Website</title>
+
   </head>
   <body>
     <div class="top_nav">
@@ -35,7 +36,7 @@
           <li class="nav_item"><a href="#" class="nav_link">About</a></li>
           <li class="nav_item"><a href="#" class="nav_link">Contact</a></li>
           <li class="nav_item">
-            {% if request.session.username %}
+            {% if username %}
             
             <a href="{% url 'logout' %}" class="nav_link">Logout</a>
             {% else %}
@@ -53,9 +54,19 @@
             <img src="{% static "image//search.png" %}" alt="" class="nav_search" />
           </form>
           <img src="{% static "image//heart.png" %}" alt="" class="nav_heart" />
-          <a href="/cart.html">
+          <a href="{% url 'cart' %}">
             <img src="{% static "image//cart.png" %}" alt="" class="nav_cart" />
           </a>
+          {% if username %}
+          <a href="{% url 'userProfile' username.id %}">
+            <img src="{% static "image//profile3.png" %}" alt="" class="nav_profile">
+          </a>
+          {% else %}
+          <a href="{% url 'signin' %}">
+            <img src="{% static "image//profile3.png" %}" alt="" class="nav_profile">
+          </a>
+          {% endif %}
+
         </div>
         <span class="hamburger">
           <svg

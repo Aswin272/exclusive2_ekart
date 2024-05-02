@@ -1,0 +1,62 @@
+{% extends "header.html" %}
+
+{% block content %}
+
+<div class="container mt-5 ">
+
+<table class="table table-dark table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Image</th>
+        <th scope="col">Product</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">status</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in orderitems %}
+      <tr>
+        
+        <td><img src="{{item.product.image.url}}" alt="image"></td>
+        <td>{{item.product.name}}</td>
+        <td>{{item.quantity}}</td>
+        
+        <td>
+            {% if item.is_cancelled %}
+            <p>Cancelled</p>
+            {% else %}
+            {{item.status}}
+            {% endif %}
+            
+        
+        </td>
+        
+        <td>
+            {% if item.is_cancelled %}
+                <p style="color:red">Cancelled</p>
+
+            {% elif item.status == "Delivered" %}
+                <p style="color:green">Delivered</p>
+                <a href="{% url 'product-review' item.product.id %}">add review</a>
+
+            {% elif item.status == "Cancelled" %}
+                <p style="color:red">Cancelled</p>
+            {% else %}
+            
+                <a href="{% url 'order-cancel' item.id %}"><button>Cancel order</button></a> 
+            {% endif %}
+            
+            
+        
+        
+        </td>
+        
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock content %}

@@ -125,6 +125,10 @@ ul {
   margin-left: 1rem;
   cursor: pointer;
 }
+.nav_Profile {
+  margin-left: 1rem;
+  cursor: pointer;
+}
 
 /* header */
 .header_container {
@@ -186,15 +190,18 @@ ul {
 
 /* cards */
 .card {
+  width: 210px;
   margin-bottom: 5rem;
 }
 .card_top {
+  
   width: 100%;
   height: 22rem;
   position: relative;
   
 }
 .card_img {
+  padding: 20px;
   width: 100%;
   height: 100%;
 }
@@ -648,5 +655,230 @@ input:focus{
 product-detail  */
 
 
+/* user-profile */
+
+
+.userprofile-leftside{
+  display: inline-block;
+}
+
+.userprofile-rightside{
+  display: inline-block;
+}
+
+
+.all-products-search{
+  display: inline-block;
+  margin-bottom: 10px;
+  background-color: rgb(216, 213, 213);
+}
+
+
+
+.UserMenu {
+  margin-top: 20px;
+  list-style-type: none;
+  padding: 0;
+  display: inline-block;
+  background-color: rgb(119, 116, 116);
+  border-radius: 5px;
+}
+
+.UserMenu li {
+  margin-bottom: 10px; /* Adds distance between each list item */
+}
+
+.UserMenu li a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #000; /* Adjust link color as needed */
+}
+
+.UserMenu li a:hover {
+  background-color: #eee; /* Adjust hover background color as needed */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* cart-------- */
+
+.cart-page{
+  margin: 80px auto;
+}
+table{
+  width: 100%;
+  border-collapse: collapse;
+}
+.cart-info{
+  display: flex;
+  flex-wrap: wrap;
+}
+th{
+  text-align: left;
+  padding: 5px;
+  color: #fff;
+  background: #db4444;
+  font-weight: normal;
+}
+td{
+  padding: 10px 5px;
+}
+td input{
+  width: 40px;
+  height: 30px;
+  padding: 5px;
+}
+td a{
+  color: #db4444;
+  font-size: 12px;
+}
+td img{
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+}
+.total-price{
+  display: flex;
+  justify-content: flex-end;
+}
+.total-price table{
+  border-top: 3px solid #db4444;
+  width: 100%;
+  max-width: 400px;
+}
+td:last-child{
+  text-align: right;
+}
+th:last-child{
+  text-align: right;
+}
+.checkout-button {
+  margin-top: 20px; /* Adjust spacing between total and button */
+  text-align: center; /* Center the button horizontally */
+}
+
+.checkout-button button {
+  background-color: #db4444;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block; /* Ensures button doesn't span full width */
+}
+
+.checkout-button button:hover {
+  background-color: #d45959;
+}
+
+
+/* address */
+
+
+.address-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 4px 4px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  margin-left: 50px;
+}
+.address-card h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+.address-card p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 5px;
+  
+}
+.address-card .address-line {
+  margin-bottom: 10px;
+}
+.address-card .edit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.address-card .edit-button:hover {
+  background-color: #0056b3;
+}
+
+/* user dashboard */
+
+
+
+/* checkout payment */
+
+/* Hide the default radio button */
+.payment-option {
+  display: none;
+}
+
+/* Style the label to look like a button */
+.payment-label {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Style for when radio button is checked */
+.payment-option:checked + .payment-label {
+  background-color: #ff523b;
+  color: #fff;
+  border-color: #ff523b;
+}
+
+
+
+
+
+
+/* edit-profileee------ */
+.edit-profile-user-details {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.edit-profile-user-info {
+  margin-top: 20px;
+}
+
+.edit-profile-user-info p {
+  margin: 10px 0;
+}
+
+.edit-profile-user-info p strong {
+  font-weight: bold;
+}
+
+
+
+
+/* add Address */
 
 

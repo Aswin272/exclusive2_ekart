@@ -6,11 +6,16 @@ import random
 import time
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
+from django.views.decorators.cache import never_cache
+import re
+from django.contrib.auth.hashers import make_password
+from django.contrib import messages
+from django.core.exceptions import MultipleObjectsReturned,ObjectDoesNotExist
 
 
 # Create your views here.
 
-
+@never_cache
 def otp_verification(request):
     if request.method=='POST':
         entered_otp =request.POST.get('otp')
@@ -27,21 +32,26 @@ def otp_verification(request):
         if entered_otp == stored_otp:
             username=request.session.get('username')
             email=request.session.get('email')
-            password=request.session.get('password')
-            user=Customers.objects.create(username=username,email=email,password=password)
+            # hash password
+            raw_password=request.session.get('password')
+            hashed_password=make_password(raw_password)
+            
+            user=Customers.objects.create(username=username,email=email,password=hashed_password)
             del request.session['otp']
             del request.session['otp_sent_time']
+            del request.session['username']
             
-            return redirect('home')
+            
+            return redirect('signin')
         else:
             error_message='the otp incorrect'
             return render(request,'otp_verification.html',{'error_message':error_message})
     return render(request,'otp_verification.html')
         
         
-    
 
 
+@never_cache
 def resend_otp(request):
     
     # Check if previous OTP is expired
@@ -49,6 +59,7 @@ def resend_otp(request):
     if (time.time() - otp_sent_time) > 30:
         # Generate OTP only if the previous OTP is expired
         otp = random.randint(100000, 999999)
+        print(otp)
         # Save OTP in session
         request.session['otp'] = str(otp)
         # Save current time in session
@@ -68,19 +79,11 @@ def resend_otp(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
+@never_cache
 def signup(request):
     if 'username' in request.session:       
         return redirect('home')
+    
     if request.method=='POST':
         username=request.POST.get('username')
         email=request.POST.get('email')
@@ -99,10 +102,15 @@ def signup(request):
         if not stripped_email:
             error_message="email field required"
             return render(request,'signup.html',{'error_message':error_message})
-        
+        if len(password) < 8:
+            error_message = "Password must be at least 8 characters long"
+            return render(request, 'signup.html', {'error_message': error_message})
+        # if not re.match(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;\'?/\[\]|,.<>~`])(?=.*[^\s]).{8,}$', password):
+        #     error_message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, one special character, and no spaces"
+        #     return render(request, 'signup.html', {'error_message': error_message})
         
         otp = random.randint(100000, 999999)
-        
+        print(otp)
         request.session['otp']=str(otp)
         request.session['otp_sent_time'] = time.time()
         request.session['username'] = username
@@ -139,17 +147,28 @@ def signin(request):
         return redirect('home')
     
     if request.method=='POST':
-        print("postttt")
         name=request.POST.get('name')
         password=request.POST.get('password')
-        user=authenticate(username=name,password=password)
-        print(user)
-        if user is not None and user.is_active:
-            user=Customers.objects.get(username=name)
-            request.session['username']=user.username
-            return redirect('home')
-        else:
-           
-            error_message='invalid username or password'
-            return render(request,'signin.html',{'error_message':error_message})
+        
+        try:
+            user = authenticate(username=name, password=password)
+            if user is not None and user.is_active:
+                request.session['username'] = user.username
+                return redirect('home')
+            else:
+                messages.error(request, "Invalid username or password. Please try again.")
+        except ObjectDoesNotExist:
+            messages.error(request, "User does not exist.")
+        except MultipleObjectsReturned:
+            messages.error(request, "Multiple users with the same username. Please contact support.")
+        
+        return render(request, 'signin.html')
+    
+    return render(request, 'signin.html')
+
+
+
+
+
+def blocked(request):
     return render(request,'signin.html')

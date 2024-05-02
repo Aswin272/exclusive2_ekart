@@ -1,0 +1,31 @@
+{% extends "header.html" %}
+
+
+{% block content %}
+
+
+<div class="container">
+
+    
+    <div class=" mt-5 edit-profile-user-details">
+        <h2>User Details</h2>
+        <div class="edit-profile-user-info">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            
+            <!-- Add more user details as needed -->
+        </div>
+        <a href="{% url 'user-editprofile' %}"><button class="btn btn-primary">edit </button></a>
+    </div>
+
+    <div>
+       
+    </div>
+    <div class="mt-5">
+        <label for="">For change password</label>
+        <a href="{% url 'change-password' %}"><button class="btn btn-primary" >change password</button></a>
+    </div>
+
+
+</div>
+{% endblock content %}

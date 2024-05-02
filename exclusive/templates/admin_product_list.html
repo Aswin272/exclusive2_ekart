@@ -76,6 +76,7 @@
                     <th>Quantity</th>
                     <th>Category</th>
                     <th>Action</th>
+                    <th>Image</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,6 +97,9 @@
                         {% else %}
                         <a class="btn btn-danger" href="{% url 'active-unactive-product' product.id %}">Not Active</a>
                         {% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-success" href="{% url 'upload-image' product.id %}">Image</a>
                     </td>
                 </tr>
                 {% endfor %}
