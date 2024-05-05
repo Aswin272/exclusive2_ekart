@@ -30,7 +30,8 @@ urlpatterns = [
     path('admin-orders/',views.adminorders,name="admin-orders"),
     
     
-    
+    path('admin-coupon/',views.coupon,name='admin-coupon'),
+    path('add-coupon/',views.addCoupon,name='add-coupon')
     # path('update_status/', views.update_status, name='update_status'),
 ]
 

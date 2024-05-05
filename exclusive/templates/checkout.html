@@ -10,7 +10,7 @@
 
     
 
-
+{% comment %} 
 
 <div class="container">
     <h1 class="mt-4"><strong>Select  Address</strong></h1>
@@ -44,7 +44,7 @@
     <h1 class="mt-4"><strong>Select  Payment</strong></h1>
 
     <input type="radio" id="cashOnDelivery" name="payment"  class="payment-option" required>
-<label for="cashOnDelivery" class="payment-label">Cash on Delivery</label>
+<label for="cashOnDelivery" class="payment-label">Cash on Delivery</label> {% endcomment %}
 
 
 {% comment %} <button id="rzp-button1">Pay with Razorpay</button> {% endcomment %}
@@ -56,7 +56,7 @@
 {% comment %} address  {% endcomment %}
 
 
-
+{% comment %} 
     <div class="small-container cart-page">
       <table>
           <tr>
@@ -106,9 +106,9 @@
     </div>
 
     
-</form>
-{% comment %} 
+</form> {% endcomment %}
 
+{% comment %} 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
@@ -148,6 +148,286 @@
         e.preventDefault();
     }
     </script> {% endcomment %}
+
+
+
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="container  mt-5 shadow p-3 mb-5 bg-white rounded">
+
+    
+    <div class="row">
+        <div class="col-xl-8">
+        <form action="{% url 'ordersuccess' %}" method="POST" >
+            {% csrf_token %}
+            
+            <div class="checkout-card">
+                <div class="checkout-card-body">
+                    <ol class="checkout-activity mb-0 px-4 mt-3">
+                        
+                        <li class="mt-5 checkout-item">
+                            <div class="checkout-avatar checkout-icon p-1">
+                                <div class="checkout-avatar-title rounded-circle bg-primary">
+                                    <i class="bx bxs-truck text-white checkout-font-size-20"></i>
+                                </div>
+                            </div>
+                            <div class=" checkout-feed-item-list">
+                                <div>
+                                    <h5 class="checkout font-size-16 mb-1">Shipping Info</h5>
+                                    <p class="text-muted checkout-text-truncate mb-4">Neque porro quisquam est</p>
+                                    <div class="mb-3">
+                                        <div class="checkout-row">
+                                            
+
+                                            <div class="checkout-col-lg-4 checkout-col-sm-6">
+
+                                                <div>
+                                                    {% for address in alladdress %}
+                                                    <label class="checkout-card-radio-label mt-5">
+                                                        <input type="radio" name="selected_address" id="checkout-info-address2" class="checkout-card-radio-input" value={{address.id}} required >
+                                                        <div class="checkout-card-radio checkout-text-truncate p-3">
+                                                            <span class="checkout-fs-14 mb-4 d-block">{{address.customers}}</span>
+                                                            <span class="checkout-fs-14 mb-2 d-block">{{address.state}}</span>
+                                                            <span class="text-muted checkout-fw-normal checkout-text-wrap mb-1 d-block">{{address.street}}</span>
+                                                            <span class="text-muted checkout-fw-normal d-block">{{address.pincode}}</span>
+                                                            <span class="text-muted checkout-fw-normal d-block">.....</span>
+                                                        </div>
+                                                    </label>
+                                                    <div class="checkout-edit-btn bg-light  rounded">
+                                                        <a href="#" data-bs-toggle="tooltip" data-placement="top" title="" data-bs-original-title="Edit">
+                                                            <i class="bx bx-pencil checkout-font-size-16"></i>
+                                                        </a>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        
+                        <li class="checkout-item">
+                            <div class="checkout-avatar checkout-icon p-1">
+                                <div class="checkout-avatar-title rounded-circle bg-primary">
+                                    <i class="bx bxs-wallet-alt text-white checkout-font-size-20"></i>
+                                </div>
+                            </div>
+                            <div class="checkout-feed-item-list">
+                                <div>
+                                    <h5 class="checkout-font-size-16 mb-1">Payment Info</h5>
+                                    <p class="text-muted checkout-text-truncate mb-4">Select a payment method</p>
+                                </div>
+                                <div>
+                                    <h5 class="checkout-font-size-14 mb-3">Payment method :</h5>
+                                    <div class="checkout-row">
+                                        
+                                        
+                                        <div class="checkout-col-lg-3 checkout-col-sm-6 mb-5">
+                                            <div>
+                                                <label class="checkout-card-radio-label">
+                                                    <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption2" value="paypal" class="checkout-card-radio-input">
+                                                    <span class="checkout-card-radio py-3 text-center checkout-text-truncate">
+                                                        <i class="bx bxl-paypal d-block h2 mb-3"></i>
+                                                        Paypal
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="checkout-col-lg-3 checkout-col-sm-6">
+                                            <div>
+                                                <label class="checkout-card-radio-label">
+                                                    <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption3" value="cod" class="checkout-card-radio-input" checked="">
+
+                                                    <span class="checkout-card-radio py-3 text-center checkout-text-truncate">
+                                                        <i class="bx bx-money d-block h2 mb-3"></i>
+                                                        <span>Cash on Delivery</span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            
+
+            <div class="checkout row my-4">
+                <div class="checkout-col">
+                    <a href="ecommerce-products.html" class="btn btn-link text-muted">
+                        <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
+                </div> <!-- end checkout-col -->
+                <div class="checkout-col">
+                    <div class="text-end mt-2 mt-sm-0">
+                        <a href="{% url 'ordersuccess' %}"><button class="btn btn-success">Proceed</button></a>
+                        {% comment %} <a href="{% url 'ordersuccess' %}" type="submit" class="btn btn-success">
+                            <i class="mdi mdi-cart-outline me-1"></i> Proceed </a> {% endcomment %}
+                    </div>
+                </div> <!-- end checkout-col -->
+            </div>  
+        </form>
+        <!-- end checkout-row-->
+        </div>
+
+
+        <div class="col-xl-4">
+            <div class="checkout-card checkout-order-summary">
+                <div class="checkout-card-body">
+                    <div class="p-3 bg-light mb-3">
+                        <h5 class="font-size-16 mb-0">Order Summary <span class="float-end ms-2">#MN0124</span></h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-centered mb-0 table-nowrap">
+                            <thead>
+                                <tr>
+                                    <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
+                                    <th class="border-top-0" scope="col">Product Desc</th>
+                                    <th class="border-top-0" scope="col">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                
+                                <tr>
+                                    <th scope="row"><img style="width:80px;height:80px" src="{{product.product.image.url}}" alt="product-img" title="product-img" class="avatar-lg rounded"></th>
+                                    <td>
+                                        <h5 class="checkout-font-size-16 checkout-text-truncate"><a href="#" class="text-dark">{{product.product.name}}</a></h5>
+                                        <p class="text-muted mb-0">
+                                            <i class="bx bxs-star text-warning"></i>
+                                            <i class="bx bxs-star text-warning"></i>
+                                            <i class="bx bxs-star text-warning"></i>
+                                            <i class="bx bxs-star text-warning"></i>
+                                        </p>
+                                        <p class="text-muted mb-0 mt-1">{{product.product.price}} x {{product.quantity}}</p>
+                                    </td>
+                                    <td>{{product.total_price}}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="2">
+                                        <h5 class="checkout-font-size-14 m-0">Sub Total :</h5>
+                                    </td>
+                                    <td>
+                                        $ 780
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <h5 class="checkout-font-size-14 m-0">Discount :</h5>
+                                    </td>
+                                    <td>
+                                        - $ 78
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2">
+                                        <h5 class="checkout-font-size-14 m-0">Shipping Charge :</h5>
+                                    </td>
+                                    <td>
+                                        $ 25
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <h5 class="checkout-font-size-14 m-0">Estimated Tax :</h5>
+                                    </td>
+                                    <td>
+                                        $ 18.20
+                                    </td>
+                                </tr>                              
+                                    
+                                <tr class="bg-light">
+                                    <td colspan="2">
+                                        <h5 class="checkout-font-size-14 m-0">Total:</h5>
+                                    </td>
+                                    <td>
+                                        {{total_price}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags%} {{message.tags}} {% endif %}" role="alert">
+                    {{message}}
+                </div>
+                {% endfor %}
+            {% endif %}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <label for="">Coupon</label>
+                <input type="text" name="coupon">
+                    <button type="submit" >Submit</button>
+            </form>
+            
+
+                {% if cart.coupon %}
+                <p>coupon applied <strong>{{cart.coupon}}</strong></p>
+                    <a href="{% url 'remove-coupon' cart.coupon.id %}"><button>remove</button></a>
+                {% endif %}
+           
+        </div>
+    </div>
+    <!-- end checkout-row -->
+    
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

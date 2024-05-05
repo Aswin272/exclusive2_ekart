@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate
 from django.views.decorators.cache import never_cache
 from products.models import Category,Product,ProductImage
-from . forms import UpdateCategoryForm,ProductForm,ProductImageForm,ProductUpdateForm,AddCategoryForm
+from . forms import UpdateCategoryForm,ProductForm,ProductImageForm,ProductUpdateForm,AddCategoryForm,AddCouponForm
 from customers.models import Customers
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -334,3 +334,24 @@ def adminorders(request):
 
 #     # Return a bad request response if the request method is not POST
 #     return JsonResponse({'success': False, 'error': 'Bad request'})
+
+
+
+
+def coupon(request):
+    if 'superuser' in request.session:
+        return render(request,'admincoupon.html')
+    return redirect('signin')
+    
+    
+def addCoupon(request):
+    if 'username' in request.session:
+        if request.POST:
+            addCoupon_form = AddCouponForm(request.POST)
+            if addCoupon_form.is_valid():
+                addCoupon_form.save()
+                return redirect('admin-coupon')
+        form=AddCouponForm()
+        return render(request,'addcoupon.html',{'form':form})
+    
+    return redirect('signin')

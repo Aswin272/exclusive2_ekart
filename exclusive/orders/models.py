@@ -2,6 +2,7 @@ from django.db import models
 from customers.models import Customers,Address
 from django.utils import timezone
 from products.models import Product
+from adminn.models import Coupon
 
 
 
@@ -14,6 +15,7 @@ class Order(models.Model):
     total_price=models.DecimalField(max_digits=10,decimal_places=2)
     address=models.ForeignKey(Address,on_delete=models.CASCADE)
     payment = models.CharField(max_length=100)
+    coupon=models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
     
 
 class OrderItem(models.Model):

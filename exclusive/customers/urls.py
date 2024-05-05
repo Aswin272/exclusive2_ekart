@@ -22,5 +22,7 @@ urlpatterns = [
     
     path('checkout/',views.checkout,name="checkout"),
     
+    path('remove-coupon/<pk>',views.removeCoupon,name="remove-coupon"),
+    
     path('product-review/<pk>',views.productreview,name="product-review")
 ]

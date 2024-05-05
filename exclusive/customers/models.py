@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from products.models import Product
+from adminn.models import Coupon
 
 # Create your models here.
 
@@ -19,6 +20,7 @@ class Address(models.Model):
     
 class Cart(models.Model):
     customer=models.ForeignKey(Customers,on_delete=models.CASCADE)
+    coupon=models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     
 class CartItem(models.Model):

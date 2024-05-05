@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
+from django.shortcuts import render,redirect,get_object_or_404,HttpResponse,HttpResponseRedirect
 from . models import Customers,Address,Cart,CartItem,Productreview
 from django.views.decorators.cache import never_cache
 from .forms import AddAddressForm,EditAddressForm
@@ -11,6 +11,9 @@ from django.core.exceptions import ValidationError,ObjectDoesNotExist
 from django.contrib.auth.hashers import check_password
 import re
 from django.contrib.auth.hashers import make_password
+from adminn.models import Coupon
+from django.contrib import messages
+from orders.models import Order
 
 # Create your views here.
 @never_cache
@@ -370,8 +373,8 @@ def changepassword(request):
   
 @never_cache     
 def checkout(request):
-    print("its chcekout")
     if 'username' in request.session:
+        
         try:
             username=request.session['username']
             user=Customers.objects.get(username=username)
@@ -386,10 +389,43 @@ def checkout(request):
             cart=Cart.objects.get(customer=user)
             cart_items = CartItem.objects.filter(cart=cart)
             if cart_items.exists():
+                for item in cart_items:
+                    item.total_price = item.product.price * item.quantity
+                    
+                total_price=sum(item.total_price for item in cart_items)
                 
-                products=[item.product for item in cart_items]
-                total_price=sum(item.product.price for item in cart_items)
-                return render(request,'checkout.html',{'alladdress':all_address,'products':products,'total_price':total_price})
+                # chceking coupon----------
+                if request.POST:
+                    coupon=request.POST.get('coupon')
+                    print(coupon)
+                    
+                    try: 
+                        print("try") 
+                        coupon_obj=Coupon.objects.get(coupon_code=coupon,is_active=True)
+                    except :
+                        print("except")
+                        messages.warning(request,'Invalid Coupon ID')
+                        return redirect('checkout')
+                    
+                    if total_price < coupon_obj.min_purchase_amount:
+                        messages.warning(request,f'amount should be greater than {coupon_obj.min_purchase_amount}')
+                        return redirect('checkout')
+                    
+                    if Order.objects.filter(user=user,coupon=coupon_obj).exists():
+                        print("already used")
+                        messages.warning (request,'you already used the coupon.')
+                        return redirect('checkout')
+                        
+                    cart.coupon=coupon_obj
+                    cart.save()
+                
+                if cart.coupon:
+                    total_price=total_price - cart.coupon.discount
+                    
+                
+                
+                return render(request,'checkout.html',{'alladdress':all_address,'products':cart_items,'total_price':total_price,'cart':cart})
+            
             else:
                 print("no items")
                 return redirect('cart')
@@ -402,7 +438,22 @@ def checkout(request):
             return redirect('cart')
         
     return redirect('signin')
-        
+ 
+ 
+def removeCoupon(request,pk):
+    if 'username' in request.session:
+        try:
+            username=request.session['username']
+            user=Customers.objects.get(username=username)
+        except:
+            return redirect('signin')
+
+        cart=Cart.objects.get(customer=user)
+        cart.coupon=None
+        cart.save()
+        return redirect('checkout')
+    return redirect('signin')
+       
   
   
 def productreview(request,pk):
