@@ -3,6 +3,7 @@ from django.urls import path,include
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib.auth.views import LogoutView
 
 
 
@@ -31,8 +32,22 @@ urlpatterns = [
     
     
     path('admin-coupon/',views.coupon,name='admin-coupon'),
-    path('add-coupon/',views.addCoupon,name='add-coupon')
+    path('add-coupon/',views.addCoupon,name='add-coupon'),
+    path('edit-coupon/<pk>',views.editcoupon,name="edit-coupon"),
     # path('update_status/', views.update_status, name='update_status'),
+    
+    #offer section
+    path('category-offers/',views.categoryoffers,name="category-offers"),
+    path('add-category-offer/', views.add_category_offer, name='add-category-offer'),
+    path('edit-category-offer/<pk>',views.editCategoryOffer,name='edit-category-offer'),
+    
+    path('product-offers/',views.productoffers,name="product-offers"),
+    path('add-product-offer/', views.add_product_offer, name='add-product-offer'),
+    path('edit-product-offers/<pk>',views.editProductOffers,name="edit-product-offers"),
+    
+    path('sales-report/',views.salesreport,name="sales-report"),
+    # path('sales-report/<str:interval>/', views.generate_sales_report, name='generate_sales_report'),
+
 ]
 
 urlpatterns +=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

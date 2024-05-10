@@ -35,3 +35,34 @@ class Productreview(models.Model):
     rating=models.IntegerField()
     description=models.TextField()
     created_at=models.DateTimeField(auto_now_add=True)
+
+
+class Wallet(models.Model):
+    user=models.OneToOneField(Customers,on_delete=models.CASCADE)
+    balance=models.DecimalField(max_digits=10,decimal_places=2,default=0)
+    
+    def __str__(self):
+        return f"Wallet of {self.user.username}"
+    
+class Transaction(models.Model):
+    wallet=models.ForeignKey(Wallet,on_delete=models.CASCADE)
+    amount=models.DecimalField(max_digits=10,decimal_places=2)
+    time=models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Transaction of {self.amount} for {self.wallet.user.username} at {self.time}"
+    
+    
+class Wishlist(models.Model):
+    user=models.OneToOneField(Customers,on_delete=models.CASCADE)
+    created_at=models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.user
+    
+    
+class WishlistItems(models.Model):
+    Product=models.ForeignKey(Product,on_delete=models.CASCADE)
+    wishlist=models.ForeignKey(Wishlist,on_delete=models.CASCADE)
+    
+

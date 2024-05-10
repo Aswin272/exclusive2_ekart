@@ -1,0 +1,181 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        select, input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function toggleCustomDate() {
+            var customDateSelect = document.getElementById("interval");
+            var startDateInput = document.getElementById("start_date");
+            var endDateInput = document.getElementById("end_date");
+
+            if (customDateSelect.value === "custom") {
+                startDateInput.style.display = "block";
+                endDateInput.style.display = "block";
+            } else {
+                startDateInput.style.display = "none";
+                endDateInput.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <label for="interval">Select Interval:</label>
+        <select name="interval" id="interval" onchange="toggleCustomDate()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="yearly">Yearly</option>
+            <option value="custom">Custom Date</option>
+        </select>
+        <input type="date" name="start_date" id="start_date" style="display: none;">
+        <input type="date" name="end_date" id="end_date" style="display: none;">
+        <input type="submit" value="Generate Report">
+    </form>
+    
+    <!-- Sales report data will be displayed here -->
+</body>
+</html> {% endcomment %}
+
+
+
+
+<!-- admin-sales-report.html -->
+<!-- admin-sales-report.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <style>
+        /* Your existing styles */
+        @media print {
+            /* Hide select interval dropdown and options when printing */
+            select[name="interval"], input[type="date"] {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<script>
+    function toggleCustomDate() {
+        var customDateSelect = document.getElementById("interval");
+        var startDateInput = document.getElementById("start_date");
+        var endDateInput = document.getElementById("end_date");
+
+        if (customDateSelect.value === "custom") {
+            startDateInput.style.display = "inline-block";  // Show the start date input
+            endDateInput.style.display = "inline-block";    // Show the end date input
+        } else {
+            startDateInput.style.display = "none";           // Hide the start date input
+            endDateInput.style.display = "none";             // Hide the end date input
+        }
+    }
+</script>
+
+
+<body>
+    <h1>Sales Report</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <label for="interval">Select Interval:</label>
+        <select name="interval" id="interval" onchange="toggleCustomDate()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="yearly">Yearly</option>
+            <option value="custom">Custom Date</option>
+        </select>
+        <input type="date" name="start_date" id="start_date" style="display: none;">
+        <input type="date" name="end_date" id="end_date" style="display: none;">
+        <input type="submit" value="Generate Report">
+    </form>
+    
+    <!-- Sales report data table -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Product</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dummy data for demonstration -->
+            <tr>
+                <td>2024-05-01</td>
+                <td>Product A</td>
+                <td>100</td>
+                <td>$1000</td>
+            </tr>
+            <tr>
+                <td>2024-05-02</td>
+                <td>Product B</td>
+                <td>80</td>
+                <td>$800</td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <h1>{{interval}}</h1>
+    <h2>onerall sales count : {{total_sales}}</h2>
+    <h1> total product price without offer : {{total_product_price}}</h1>
+    <h1> total product price after offer: {{total_order_amount}}</h1>
+    <h1>product price after overall discount: {{product_price_after_averall_discount}}</h1>
+
+    <h1>overall coupon discount{{total_coupon_discount}}</h1>
+
+    <h1>overall discount{{overall_discount}}</h1>
+    
+
+
+    <h1>{{ start_date }}</h1>
+<h1>{{ end_date }}</h1>
+</body>
+</html>

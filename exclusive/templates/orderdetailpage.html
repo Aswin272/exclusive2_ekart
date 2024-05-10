@@ -1,0 +1,151 @@
+{% extends "header.html" %}
+
+
+{% block content %}
+
+
+<div class="container-fluid">
+
+
+    <div class="container order-detail-body mt-5">
+      <!-- Title -->
+      <div class="d-flex justify-content-between align-items-center py-3">
+        <h2 class="h5 mb-0"><a href="#" class="text-muted"></a> Order : # {{order_item.id}}</h2>
+      </div>
+    
+      <!-- Main content -->
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Details -->
+          <div class="card-order-detail mb-4">
+            <div class="card-body">
+              <div class="mb-3 d-flex justify-content-between">
+                <div>
+                  <span class="me-3">22-11-2021</span>
+                  <span class="me-3">#16123222</span>
+                  <span class="me-3">Visa -1234</span>
+                  {% if order_item.is_cancelled %}
+                  <span class="badge rounded-pill bg-danger">Cancelled</span>
+                  {% else %}
+                  <span class="badge rounded-pill bg-info">{{order_item.status}}</span>
+                  {% endif %}
+                </div>
+                <div class="d-flex">
+                  <button class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text"><i class="bi bi-download"></i> <span class="text">Invoice</span></button>
+                  <div class="dropdown">
+                    <button class="btn btn-link p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a></li>
+                      <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i> Print</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <table class="table table-borderless">
+                <tbody>
+
+                    <td>
+                      <div class="d-flex mb-2">
+                        <div class="flex-shrink-0">
+                          <img src="{{ order_item.product.image.url }}" alt="" width="35" class="img-fluid">
+                        </div>
+                        <div class="flex-lg-grow-1 ms-3">
+                            <span class="small">{{order_item.product.name}}</span>
+                          <h6 class="small mb-0"><a href="#" class="text-reset-order-detail">{{order_item.product.description}}</a></h6>
+                          {% comment %} <span class="small">Color: White</span> {% endcomment %}
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{order_item.quantity}}</td>
+                    <td class="text-end">$ {{order_item.price}}</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="2">Subtotal</td>
+                    <td class="text-end">$ {{order_item.price}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">Shipping</td>
+                    <td class="text-end">$00.00</td>
+                  </tr>
+                  {% comment %} <tr>
+                    <td colspan="2">Discount (Code: NEWYEAR)</td>
+                    <td class="text-danger text-end">-$10.00</td>
+                  </tr> {% endcomment %}
+                  <tr class="fw-bold">
+                    <td colspan="2">TOTAL</td>
+                    <td class="text-end">$ {{order_item.price}}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <!-- Payment -->
+          <div class="card-order-detail mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <h3 class="h6">Payment Method</h3>
+                  <p> {{order_item.order.payment}} <br>
+                  Total: $ {{order_item.price}}  <span class="badge bg-success rounded-pill">{% if order_item.order.payment == "cod" %} UNPAID {% else %} PAID{% endif %}</span></p>
+                </div>
+                <div class="col-lg-6">
+                  <h3 class="h6">Billing address</h3>
+                  <address>
+                    <strong>{{order_item.order.user}}</strong><br>
+                    street: {{order_item.order.address.street}} <br>
+                    city : {{order_item.order.address.city}} <br>
+                    district: {{order_item.order.address.district}} <br>
+                    state: {{order_item.order.address.state}} <br>
+                    pincode: {{order_item.order.address.pincode}} <br>
+                    
+                  </address>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <!-- Customer Notes -->
+
+          <div class="card-order-detail mb-4">
+            <!-- Shipping information -->
+            <div class="card-body">
+              <h3 class="h6">Shipping Information</h3>
+              <strong>FedEx</strong>
+              <span><a href="#" class="text-decoration-underline" target="_blank">FF1234567890</a> <i class="bi bi-box-arrow-up-right"></i> </span>
+              <hr>
+              <h3 class="h6">Address</h3>
+              <address>
+                <strong>{{order_item.order.user}}</strong><br>
+                street: {{order_item.order.address.street}} <br>
+                city : {{order_item.order.address.city}} <br>
+                district: {{order_item.order.address.district}} <br>
+                state: {{order_item.order.address.state}} <br>
+                pincode: {{order_item.order.address.pincode}} <br>
+              </address>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            {% if order_item.is_cancelled or order_item.status == "Cancelled" %}
+            <p>Order Cancelled</p>
+            {% elif order_item.status == "Delivered" %}
+            <a href="">return</a>
+            {% else %}
+            <a href="{% url 'order-cancel' order_item.id %}"><button>Cancel order</button></a> 
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+      </div>
+
+
+{% endblock content %}
+
+

@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse,HttpResponseRedirect
-from . models import Customers,Address,Cart,CartItem,Productreview
+from . models import Customers,Address,Cart,CartItem,Productreview,Wishlist,WishlistItems,Wallet
 from django.views.decorators.cache import never_cache
 from .forms import AddAddressForm,EditAddressForm
-from products.models import Product
+from products.models import Product,Category,CategoryOffer,ProductOffer
 import datetime
 from django.http import JsonResponse
 from django.template.loader import render_to_string
@@ -14,13 +14,19 @@ from django.contrib.auth.hashers import make_password
 from adminn.models import Coupon
 from django.contrib import messages
 from orders.models import Order
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 @never_cache
 def userProfile(request,pk):   
     try:
         user = Customers.objects.get(id=pk)
+        
+        
+          
         return render(request, 'userProfile.html', {'username': user})
+    
     except ObjectDoesNotExist:
         return redirect('signin')
     
@@ -179,20 +185,32 @@ def add_to_cart(request,pk):
             username=request.session['username']
             customer=Customers.objects.get(username=username)
             
+            # category offer-----
+            category_offer = CategoryOffer.objects.filter(category=product.Category,
+                                                           start_date__lte=timezone.now(),
+                                                           end_date__gte=timezone.now()).first()
+            if category_offer:
+                print("yes inside this")
+                product_price = product.price - (product.price * category_offer.discount_percentage / 100)
+            else:
+                product_price = product.price
+            
+            print("product price",product_price)
             # created customer in cart if there is not customer else it get the customer
             cart, created=Cart.objects.get_or_create(customer=customer)
             
             # creating cartitem with the cart because customer is in the cart
             cart_item, created =CartItem.objects.get_or_create(cart=cart,product=product)
+            return redirect('cart')
+            # print("everything finished")
+            # # then taking all the items from the cart
+            # cart_items = CartItem.objects.filter(cart=cart)
             
-            # then taking all the items from the cart
-            cart_items = CartItem.objects.filter(cart=cart)
-            
-            for item in cart_items:
-                item.total_price = item.product.price * item.quantity
-            total_price = sum(item.total_price for item in cart_items)
+            # for item in cart_items:
+            #     item.total_price = product_price * item.quantity
+            # total_price = sum(item.total_price for item in cart_items)
 
-            return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price})
+            # return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price,'product_price': product_price})
         except(Product.DoesNotExist,Customers.DoesNotExist) as e:
             print("trapped")
             return redirect ('signin')
@@ -210,11 +228,44 @@ def cart(request):
             # for items in cart_items:
             #     print(items.quantity)
             
+            
+            product_price=None
             for item in cart_items:
-                item.total_price = item.product.price * item.quantity
+                
+                category_offer = CategoryOffer.objects.filter(category=item.product.Category,
+                                                               start_date__lte=timezone.now(),
+                                                               end_date__gte=timezone.now()).first()
+                
+                product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
+                
+                
+                
+                
+                if category_offer:
+                    category_product_price = item.product.price - (item.product.price * category_offer.discount_percentage / 100)
+                
+                if product_offer:
+                    product_product_price=item.product.price-product_offer.discount_price
+                    
+                if category_offer and product_offer:
+                    if category_product_price < product_product_price:
+                        product_price = category_product_price
+                    else:
+                        product_price = product_product_price
+                elif category_offer:
+                    product_price=category_product_price
+                elif product_offer:
+                    product_price = product_product_price
+                    
+                else:
+                    product_price = item.product.price
+                
+                item.total_price = product_price * item.quantity
+                
             total_price = sum(item.total_price for item in cart_items)
-            print("priceee",total_price)
-            return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price})
+            print("totalpriceee",total_price)
+            print("productprice",product_price)
+            return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price,'product_price':product_price})
         except Customers.DoesNotExist:
             print("customer does not exist")
             return redirect('signin')
@@ -250,6 +301,7 @@ def cartitemremove(request,pk):
   
 def update_cart(request, pk):
     if request.method == 'POST':
+        print("update cart")
         cart_item = get_object_or_404(CartItem, pk=pk)
         quantity = int(request.POST.get('quantity', 1))
         
@@ -258,18 +310,51 @@ def update_cart(request, pk):
         else:
             cart_item.quantity = quantity
             cart_item.save()
+            
+        
+        
         
         # Update cart items and calculate total price
         cart_items = CartItem.objects.filter(cart=cart_item.cart)
         
         for item in cart_items:
-            item.total_price = item.product.price * item.quantity
+            
+            category_offer = CategoryOffer.objects.filter(category=item.product.Category,
+                                                           start_date__lte=timezone.now(),
+                                                           end_date__gte=timezone.now()).first()
+            
+            product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
+            
+            product_price=None
+            
+            if category_offer:
+                category_product_price = item.product.price - (item.product.price * category_offer.discount_percentage / 100)
+                
+            if product_offer:
+                    product_product_price=item.product.price-product_offer.discount_price
+                    
+            if category_offer and product_offer:
+                if category_product_price < product_product_price:
+                    product_price = category_product_price
+                else:
+                    product_price = product_product_price
+            elif category_offer:
+                    product_price=category_product_price
+            elif product_offer:
+                    product_price = product_product_price
+            else:
+                product_price = item.product.price
+            
+            
+            item.total_price = product_price * item.quantity
             item.save()  # Save each item after updating total_price
         
         total_price = sum(item.total_price for item in cart_items)
         
+        print("totalprice",total_price)
+        print("productprice:::",product_price)
         # Serialize cart items data
-        cart_items_html = render_to_string('cart.html', {'cart_items': cart_items})
+        cart_items_html = render_to_string('cart.html', {'cart_items': cart_items, 'total_price': total_price})
         subtotal_dict = {item.pk: item.total_price for item in cart_items}
         
         return JsonResponse({'cart_items_html': cart_items_html, 'total_price': total_price, 'subtotals': subtotal_dict})
@@ -390,7 +475,34 @@ def checkout(request):
             cart_items = CartItem.objects.filter(cart=cart)
             if cart_items.exists():
                 for item in cart_items:
-                    item.total_price = item.product.price * item.quantity
+                    
+                    category_offer = CategoryOffer.objects.filter(category=item.product.Category,
+                                                               start_date__lte=timezone.now(),
+                                                               end_date__gte=timezone.now()).first()
+            
+                    product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
+                    
+                    if category_offer:
+                        category_product_price = item.product.price - (item.product.price * category_offer.discount_percentage / 100)
+                    if product_offer:
+                        product_product_price=item.product.price-product_offer.discount_price
+                    
+                    if category_offer and product_offer:
+                        if category_product_price < product_product_price:
+                            product_price = category_product_price
+                        else:
+                            product_price = product_product_price
+                    elif category_offer:
+                        product_price=category_product_price
+                    elif product_offer:
+                        product_price = product_product_price
+                    else:
+                        product_price = item.product.price
+                    
+                    item.total_price = product_price * item.quantity
+                    
+                    
+                    
                     
                 total_price=sum(item.total_price for item in cart_items)
                 
@@ -494,3 +606,55 @@ def productreview(request,pk):
 
 
 
+# wishlist----------------
+@login_required
+def wishlist(request):
+    
+    user=request.user
+    
+    wishlist = get_object_or_404(Wishlist, user=user)
+    wishlist_items = WishlistItems.objects.filter(wishlist=wishlist)
+    
+    return render(request, 'wishlist.html', {'wishlistitems': wishlist_items})
+    
+    
+    # if 'username' in request.session:
+    #     username = request.session['username']
+    #     user = Customers.objects.get(username=username)
+        
+    #     wishlist=get_object_or_404(Wishlist,user=user)
+    #     wishlist_items=WishlistItems.objects.filter(wishlist=wishlist)
+        
+            
+    #     return render(request,'wishlist.html',{'wishlistitems':wishlist_items})
+    # return redirect('signin')
+
+
+def addwishlist(request,pk):
+    if 'username' in request.session:
+        username = request.session['username']
+        user = Customers.objects.get(username=username)
+        
+        product = get_object_or_404(Product, pk=pk)
+        
+        wishlist, created = Wishlist.objects.get_or_create(user=user)
+        
+        wishlist_item,created = WishlistItems.objects.get_or_create(Product=product, wishlist=wishlist)
+        
+        return redirect('wishlist')
+    return redirect('signin')
+
+def removewishlist(request,pk):
+    if 'username' in request.session:
+        username = request.session['username']
+        user = Customers.objects.get(username=username)
+        
+        product = get_object_or_404(Product, pk=pk)
+        
+        wishlist = Wishlist.objects.get(user=user)
+        wishlist_item = WishlistItems.objects.get(Product=product, wishlist=wishlist)
+        wishlist_item.delete()
+        return redirect('wishlist')
+    return redirect('signin')
+        
+    

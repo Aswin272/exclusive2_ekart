@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 import random
 import time
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 from django.views.decorators.cache import never_cache
 import re
 from django.contrib.auth.hashers import make_password
@@ -154,6 +154,7 @@ def signin(request):
             user = authenticate(username=name, password=password)
             if user is not None and user.is_active:
                 request.session['username'] = user.username
+                login(request,user)
                 return redirect('home')
             else:
                 messages.error(request, "Invalid username or password. Please try again.")

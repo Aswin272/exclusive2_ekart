@@ -192,3 +192,5 @@ LOGIN_REDIRECT_URL='home'
 razor_pay_key_id='rzp_test_9WS2jC7ozsZuT9'
 
 key_secret='Jg7zuScMrY7jSh3W2Wf21pOf'
+
+LOGOUT_REDIRECT_URL = '/signin/'  

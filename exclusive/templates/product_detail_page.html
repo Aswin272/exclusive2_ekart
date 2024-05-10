@@ -154,6 +154,11 @@
           <div class = "product-div-right">
               <span class = "product-name">{{products.name}}</span>
               <span class = "product-price">$ {{products.price}}</span>
+              {% if discounted_price is not None %}
+        <!-- Display the discounted price after category offer -->
+        <span class="discounted-price">Discounted Price: ${{ discounted_price }}</span>
+    {% endif %}
+
               <div class = "product-rating">
                
                 <div class="card_ratings">
@@ -231,7 +236,7 @@
                 <p style="color:red">stocks left : {{products.quantity}} !!!</p>
                 <p>Average rating:{{average_rating}}</p>
                   <a href="{% url 'add_to_cart' products.id %}"><button type = "button" class = "add-cart-btn"><i class = "fas fa-shopping-cart"></i>add to cart</button></a>
-                  <button type = "button" class = "buy-now-btn"><i class = "fas fa-wallet"></i>buy now</button>
+                  <a href="{% url 'add-wishlist' products.id %}"><button type = "button" class = "buy-now-btn"><i class = "fas fa-wallet"></i>wishlist</button></a>
                   {% else %}
                   <p>out of stock</p>
                   {% endif %}

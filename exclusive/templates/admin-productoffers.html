@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Offers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .offers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-gap: 20px;
+        }
+
+        .offer {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .offer h2 {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .offer p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .offer p:first-child {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Offers</h1>
+
+        <button class="btn btn-primary"><a href="{% url 'add-product-offer' %}" >Add Product Offer</a></button>
+
+        <div class="offers">
+            <!-- Loop through product offers -->
+            {% for offer in productoffers %}
+            <div class="offer">
+                <h2>{{ offer.name }}</h2>
+                <p>Description: {{ offer.product }}</p>
+                <p>Discount: {{ offer.discount_price }}</p>
+                <p>Start Date: {{ offer.start_date }}</p>
+                <p>End Date: {{ offer.end_date }}</p>
+                <a href="{% url 'edit-product-offers' offer.id %}"><button>edit</button></a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

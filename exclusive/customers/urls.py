@@ -24,5 +24,9 @@ urlpatterns = [
     
     path('remove-coupon/<pk>',views.removeCoupon,name="remove-coupon"),
     
-    path('product-review/<pk>',views.productreview,name="product-review")
+    path('product-review/<pk>',views.productreview,name="product-review"),
+    
+    path('wishlist/',views.wishlist,name="wishlist"),
+    path('add-wishlist/<pk>',views.addwishlist,name="add-wishlist"),
+    path('remove-wishlist/<pk>',views.removewishlist,name="remove-wishlist")
 ]

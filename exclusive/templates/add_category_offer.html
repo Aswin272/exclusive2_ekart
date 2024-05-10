@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Coupon</title>
+    <title>Add Category Offer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f3f3f3;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
         }
         form {
             max-width: 400px;
@@ -19,16 +23,12 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
         label {
             display: block;
             margin-bottom: 8px;
             color: #666;
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="date"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -53,13 +53,12 @@
     </style>
 </head>
 <body>
-    <h1>Add Coupon</h1>
-    <form action="" method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-
+    <h1>Add Category Offer</h1>
+    <form method="post">
         
 
+        {% csrf_token %}
+        {{ form.as_p }}
         <button type="submit">Submit</button>
     </form>
 </body>

@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from products.models import Category,Product,ProductImage
+from products.models import Category,Product,ProductImage,CategoryOffer,ProductOffer
 from .models import Coupon
 
 class AddCategoryForm(ModelForm):
@@ -45,5 +45,40 @@ class AddCouponForm(ModelForm):
     class Meta:
         model=Coupon
         fields=['coupon_code','coupon_name','discount','min_purchase_amount','is_active']
+
+
+class EditCouponForm(ModelForm):
+    class Meta:
+        model=Coupon
+        fields='__all__'        
+
+class CategoryOfferForm(forms.ModelForm):
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    
+    class Meta:
+        model=CategoryOffer
+        fields='__all__'
         
         
+class EditCategoryOfferForm(forms.ModelForm):
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    class Meta:
+        model=CategoryOffer
+        fields='__all__'
+        
+class ProductOfferForm(forms.ModelForm):
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    
+    class Meta:
+        model=ProductOffer
+        fields='__all__'
+        
+class EditProductOffersForm(forms.ModelForm):
+    start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    class Meta:
+        model=ProductOffer
+        fields='__all__'

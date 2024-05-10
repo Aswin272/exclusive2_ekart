@@ -36,7 +36,7 @@
           <li class="nav_item"><a href="#" class="nav_link">About</a></li>
           <li class="nav_item"><a href="#" class="nav_link">Contact</a></li>
           <li class="nav_item">
-            {% if username %}
+            {% if user.is_authenticated %}
             
             <a href="{% url 'logout' %}" class="nav_link">Logout</a>
             {% else %}
@@ -46,19 +46,23 @@
           </li>
         </ul>
         <div class="nav_items">
-          <form action="#" class="nav_form">
+          <form action="{% url 'search' %}" method="get"  class="nav_form">
             <input
-              type="text"
-              class="nav_input"
+              type="text" 
+              class="nav_input" name="query"
               placeholder="search here...." />
-            <img src="{% static "image//search.png" %}" alt="" class="nav_search" />
+              <button type="submit">
+            <img src="{% static "image//search.png" %}" alt="" class="nav_search" /></button>
           </form>
+
+          <a href="{% url 'wishlist' %}">
           <img src="{% static "image//heart.png" %}" alt="" class="nav_heart" />
+          </a>
           <a href="{% url 'cart' %}">
             <img src="{% static "image//cart.png" %}" alt="" class="nav_cart" />
           </a>
-          {% if username %}
-          <a href="{% url 'userProfile' username.id %}">
+          {% if user.is_authenticated %}
+          <a href="{% url 'userProfile' user.id %}">
             <img src="{% static "image//profile3.png" %}" alt="" class="nav_profile">
           </a>
           {% else %}

@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from .models import Category,Product,ProductImage
+from django.shortcuts import render,redirect
+from .models import Category,Product,ProductImage,CategoryOffer,ProductOffer
 from django.views.decorators.cache import never_cache
 from customers.models import Customers,Productreview
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
+from django.utils import timezone
 
 
 # Create your views here.
@@ -37,9 +38,42 @@ def product_detail_page(request,pk):
     related_product=Product.objects.filter(Category=product.Category).exclude(id=pk)
     img=ProductImage.objects.filter(product=pk)
     average_rating = Productreview.objects.filter(product=product).aggregate(Avg('rating'))['rating__avg']
+    
+    category_offer = CategoryOffer.objects.filter(category=product.Category,
+                                                   start_date__lte=timezone.now(),
+                                                   end_date__gte=timezone.now()).first()
+    
+    
+    product_offer = ProductOffer.objects.filter(product=product,
+                                                 start_date__lte=timezone.now(),
+                                                 end_date__gte=timezone.now()).first()
+    
+    
+    discounted_price = None  # Initialize discounted price
+    
+    if category_offer:
+        
+        category_discounted_price = product.price - (product.price * category_offer.discount_percentage / 100)
+        
+    
+    if product_offer:
+        
+        product_discounted_price = product.price - product_offer.discount_price
+        
+    
+    if category_offer and product_offer:
+        if category_discounted_price < product_discounted_price:
+            discounted_price = category_discounted_price
+        else:
+            discounted_price = product_discounted_price
+    elif category_offer:
+        discounted_price = category_discounted_price
+    elif product_offer:
+        discounted_price = product_discounted_price
+    print("dicsount price",discounted_price)
     for i in img:
         print(i.image.url)
-    return render(request,'product_detail_page.html',{'products':product,'img':img,'related_products':related_product,'average_rating':average_rating})
+    return render(request,'product_detail_page.html',{'products':product,'img':img,'related_products':related_product,'average_rating':average_rating,'discounted_price': discounted_price})
 
 @never_cache
 def all_products_list(request):
@@ -49,6 +83,7 @@ def all_products_list(request):
 
 
 def sort(request):
+    
     if request.method=='POST':
         
         value=request.POST.get('sort_by')
@@ -70,3 +105,23 @@ def sort(request):
     
         products=Product.objects.all()
         return render(request,'all_product_list.html',{'products':products})
+    
+
+def search(request):
+    query = request.GET.get('query', '')
+    sort_by = request.GET.get('sort_by', '')
+    
+    products = Product.objects.filter(name__icontains=query)
+    
+    if sort_by == 'priceLow':
+        products = products.order_by('price')
+    elif sort_by == 'priceHigh':
+        products = products.order_by('-price')
+    elif sort_by == 'nameAsce':
+        products = products.order_by('name')
+    elif sort_by == 'nameDesc':
+        products = products.order_by('-name')
+    elif sort_by == 'newArrivals':
+        products = products.order_by('-created_at')
+    
+    return render(request, 'search.html', {'products': products, 'query': query})

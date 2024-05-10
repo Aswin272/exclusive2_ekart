@@ -33,7 +33,9 @@
         </td>
         
         <td>
-            {% if item.is_cancelled %}
+
+          <a href="{% url 'order-detail' item.id %}">order detail</a>
+            {% comment %} {% if item.is_cancelled %}
                 <p style="color:red">Cancelled</p>
 
             {% elif item.status == "Delivered" %}
@@ -45,7 +47,7 @@
             {% else %}
             
                 <a href="{% url 'order-cancel' item.id %}"><button>Cancel order</button></a> 
-            {% endif %}
+            {% endif %} {% endcomment %}
             
             
         

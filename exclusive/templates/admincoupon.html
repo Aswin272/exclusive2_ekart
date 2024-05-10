@@ -1,10 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon List</title>
+    <style>
+        /* Your existing CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .coupon-list {
+            width: 50%;
+            margin-top: 20px;
+        }
+        .coupon-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .coupon-details {
+            display: flex;
+            justify-content: space-between;
+        }
+        .coupon-code {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>It's Coupon Time!</h1>
+    <a href="{% url 'add-coupon' %}">
+        <button>Add Coupon</button>
+    </a>
 
-
-
-<h1>its coupon </h1>
-
-<a href="{% url 'add-coupon' %}"><button>Add button</button></a>
-
-
-
+    <div class="coupon-list">
+        {% for coupon in coupons %}
+            <div class="coupon-item">
+                <div class="coupon-details">
+                    <span class="coupon-code">{{ coupon.coupon_code }}</span>
+                    <span class="coupon-discount">Discount: {{ coupon.discount }}</span>
+                </div>
+                <div class="coupon-name">Name: {{ coupon.coupon_name }}</div>
+                <div class="coupon-min-purchase">Minimum Purchase: ${{ coupon.min_purchase_amount }}</div>
+                <div class="coupon-min-purchase"> Active : {{ coupon.is_active }}</div>
+                <a href="{% url 'edit-coupon' coupon.id %}"><button>edit</button></a>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
 

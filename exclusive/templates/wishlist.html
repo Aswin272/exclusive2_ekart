@@ -1,0 +1,52 @@
+{% extends "header.html" %}
+
+
+
+{% block content %}
+
+
+
+<div class="container mt-5">
+    <div class="padding-top-2x mt-2 hidden-lg-up"></div>
+    <!-- Wishlist Table-->
+    <div class="table-responsive wishlist-table margin-bottom-none">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th class="text-center"><a class="btn btn-sm btn-outline-danger" href="#">Clear Wishlist</a></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in wishlistitems %}
+                <tr>
+                    <td>
+                        <div class="product-item">
+                            <a class="product-thumb" href="#"><img src="{{item.Product.image.url}}" alt="Product"></a>
+                            
+                            <div class="product-info">
+                                <h4 class="product-title"><a href="#">{{item.Product.name}}</a></h4>
+                                <div class="text-lg text-medium text-muted">${{item.Product.price}}</div>
+                                <div>Availability:
+                                    {% if item.Product.quantity > 0 %}
+                                    <div class="d-inline text-success">In Stock</div>
+                                    {% else %}
+                                    <div class="d-inline text-danger">Not in Stock</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    
+                    <td class="text-center"><a class="remove-from-cart" href="{% url 'remove-wishlist' item.Product.id %}" data-toggle="tooltip" title="" data-original-title="Remove item"> Remove<i class="icon-cross"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <hr class="mb-4">
+    
+</div>
+
+
+{% endblock content %}

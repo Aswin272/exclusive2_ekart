@@ -10,5 +10,6 @@ urlpatterns = [
     
     path('order-success/',views.orderSuccess,name="ordersuccess"),
     path('orders/',views.orders,name='orders'),
-    path('order-cancel/<pk>',views.ordercancel,name="order-cancel")
+    path('order-cancel/<pk>',views.ordercancel,name="order-cancel"),
+    path('order-detail/<pk>',views.orderdetail,name="order-detail")
 ]
