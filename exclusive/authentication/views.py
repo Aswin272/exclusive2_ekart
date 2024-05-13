@@ -143,10 +143,12 @@ def signup(request):
 
 
 def signin(request):
-    if 'username' in request.session:
-        return redirect('home')
+    print("inside signin")
+    # if 'username' in request.session:
+    #     return redirect('home')
     
     if request.method=='POST':
+        print("inside post")
         name=request.POST.get('name')
         password=request.POST.get('password')
         

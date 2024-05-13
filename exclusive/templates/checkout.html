@@ -178,7 +178,13 @@
                             <div class=" checkout-feed-item-list">
                                 <div>
                                     <h5 class="checkout font-size-16 mb-1">Shipping Info</h5>
-                                    <p class="text-muted checkout-text-truncate mb-4">Neque porro quisquam est</p>
+                                    
+                                    <div class="checkout-col">
+                                        <div class="text-end mt-2 mt-sm-0">
+                                            <a href="{% url 'add-address' %}" class="btn btn-primary">Add Address</a>
+                                        </div>
+                                    </div>
+
                                     <div class="mb-3">
                                         <div class="checkout-row">
                                             
@@ -203,6 +209,8 @@
                                                         </a>
                                                     </div>
                                                     {% endfor %}
+                                                    
+
                                                 </div>
                                             </div>
                                         </div>
@@ -230,7 +238,7 @@
                                         <div class="checkout-col-lg-3 checkout-col-sm-6 mb-5">
                                             <div>
                                                 <label class="checkout-card-radio-label">
-                                                    <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption2" value="paypal" class="checkout-card-radio-input">
+                                                    <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption2" value="razorpay" class="checkout-card-radio-input">
                                                     <span class="checkout-card-radio py-3 text-center checkout-text-truncate">
                                                         <i class="bx bxl-paypal d-block h2 mb-3"></i>
                                                         Paypal
@@ -251,6 +259,19 @@
                                                 </label>
                                             </div>
                                         </div>
+
+                                        <div class="checkout-col-lg-3 checkout-col-sm-6">
+                                            <div>
+                                                <label class="checkout-card-radio-label">
+                                                    <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption3" value="wallet" class="checkout-card-radio-input" checked="">
+
+                                                    <span class="checkout-card-radio py-3 text-center checkout-text-truncate">
+                                                        <i class="bx bx-money d-block h2 mb-3"></i>
+                                                        <span>Wallet  {{wallet.balance}}</span>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
                                         
                                     </div>
                                 </div>
@@ -262,10 +283,7 @@
             
 
             <div class="checkout row my-4">
-                <div class="checkout-col">
-                    <a href="ecommerce-products.html" class="btn btn-link text-muted">
-                        <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
-                </div> <!-- end checkout-col -->
+                 <!-- end checkout-col -->
                 <div class="checkout-col">
                     <div class="text-end mt-2 mt-sm-0">
                         <a href="{% url 'ordersuccess' %}"><button class="btn btn-success">Proceed</button></a>
@@ -307,44 +325,26 @@
                                             <i class="bx bxs-star text-warning"></i>
                                             <i class="bx bxs-star text-warning"></i>
                                         </p>
-                                        <p class="text-muted mb-0 mt-1">{{product.product.price}} x {{product.quantity}}</p>
+                                        <p class="text-muted mb-0 mt-1">{{product_price}} x {{product.quantity}}</p>
                                     </td>
                                     <td>{{product.total_price}}</td>
                                 </tr>
                                 {% endfor %}
                                 <tr>
                                     <td colspan="2">
-                                        <h5 class="checkout-font-size-14 m-0">Sub Total :</h5>
+                                        <h5 class="checkout-font-size-14 m-0">Coupon Discount</h5>
                                     </td>
                                     <td>
-                                        $ 780
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <h5 class="checkout-font-size-14 m-0">Discount :</h5>
-                                    </td>
-                                    <td>
-                                        - $ 78
-                                    </td>
-                                </tr>
+                                        {% if cart.coupon %}
+                                        
+                                        {{ cart.coupon.discount }}
+                                        {% else %}
+                                        <h4>00.00</h4>
+                                        {% endif %}
 
-                                <tr>
-                                    <td colspan="2">
-                                        <h5 class="checkout-font-size-14 m-0">Shipping Charge :</h5>
-                                    </td>
-                                    <td>
-                                        $ 25
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td colspan="2">
-                                        <h5 class="checkout-font-size-14 m-0">Estimated Tax :</h5>
-                                    </td>
-                                    <td>
-                                        $ 18.20
-                                    </td>
-                                </tr>                              
+                                                              
                                     
                                 <tr class="bg-light">
                                     <td colspan="2">

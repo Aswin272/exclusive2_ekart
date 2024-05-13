@@ -16,16 +16,21 @@ from django.contrib import messages
 from orders.models import Order
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 # Create your views here.
 @never_cache
+
 def userProfile(request,pk):   
     try:
         user = Customers.objects.get(id=pk)
+        print(user)
         
         
-          
-        return render(request, 'userProfile.html', {'username': user})
+            
+        wallet, created = Wallet.objects.get_or_create(user=user)            
+        
+        return render(request, 'userProfile.html', {'username': user,'wallet':wallet})
     
     except ObjectDoesNotExist:
         return redirect('signin')
@@ -52,6 +57,23 @@ def contains_special_characters(value):
     # Regular expression pattern to match special characters
     pattern = r'[!@#$%^&*()_+}{":;\'?/\[\]|,.<>~`]'
     return re.search(pattern, value)
+
+
+
+
+def redirect_return_url(request):
+    # Extract the return URL parameter
+    return_url = request.GET.get('return_url')
+    
+    # Determine the redirect URL based on the return URL parameter
+    if return_url == 'user-address':
+        redirect_url = reverse('user-address')
+    else:
+        redirect_url = reverse('checkout')
+    
+    return HttpResponseRedirect(redirect_url)
+
+
 
 
 
@@ -97,7 +119,8 @@ def addaddress(request):
                     form=Addressform.save(commit=False)
                     form.customers_id=user.id
                     form.save()
-                    return redirect('user-address')
+                    return redirect_return_url(request)
+                    # return redirect('user-address')
                 except Exception as e:
                     print('error saving address:',e)
             else:
@@ -464,6 +487,10 @@ def checkout(request):
             username=request.session['username']
             user=Customers.objects.get(username=username)
             
+            wallet, created = Wallet.objects.get_or_create(user=user)            
+            
+            
+            
             # if request.method=='POST':
             #     return redirect('ordersuccess')
             # getting address
@@ -536,7 +563,7 @@ def checkout(request):
                     
                 
                 
-                return render(request,'checkout.html',{'alladdress':all_address,'products':cart_items,'total_price':total_price,'cart':cart})
+                return render(request,'checkout.html',{'alladdress':all_address,'products':cart_items,'total_price':total_price,'cart':cart,'product_price':product_price,'wallet':wallet})
             
             else:
                 print("no items")
@@ -612,6 +639,13 @@ def wishlist(request):
     
     user=request.user
     
+    # try:
+    #     wishlist = Wishlist.objects.get(user=user)
+    #     wishlist_items = WishlistItems.objects.filter(wishlist=wishlist)
+    # except Wishlist.DoesNotExist:
+    #     # Handle the case when the wishlist does not exist for the user
+    #     wishlist_items = []
+    
     wishlist = get_object_or_404(Wishlist, user=user)
     wishlist_items = WishlistItems.objects.filter(wishlist=wishlist)
     
@@ -629,32 +663,32 @@ def wishlist(request):
     #     return render(request,'wishlist.html',{'wishlistitems':wishlist_items})
     # return redirect('signin')
 
-
+@login_required
 def addwishlist(request,pk):
-    if 'username' in request.session:
-        username = request.session['username']
-        user = Customers.objects.get(username=username)
+    user=request.user
+    # if 'username' in request.session:
+    #     username = request.session['username']
+    #     user = Customers.objects.get(username=username)
         
-        product = get_object_or_404(Product, pk=pk)
-        
-        wishlist, created = Wishlist.objects.get_or_create(user=user)
-        
-        wishlist_item,created = WishlistItems.objects.get_or_create(Product=product, wishlist=wishlist)
-        
-        return redirect('wishlist')
-    return redirect('signin')
+    product = get_object_or_404(Product, pk=pk)
+    
+    wishlist, created = Wishlist.objects.get_or_create(user=user)
+    
+    wishlist_item,created = WishlistItems.objects.get_or_create(Product=product, wishlist=wishlist)
+    
+    return redirect('wishlist')
 
+
+@login_required
 def removewishlist(request,pk):
-    if 'username' in request.session:
-        username = request.session['username']
-        user = Customers.objects.get(username=username)
-        
-        product = get_object_or_404(Product, pk=pk)
-        
-        wishlist = Wishlist.objects.get(user=user)
-        wishlist_item = WishlistItems.objects.get(Product=product, wishlist=wishlist)
-        wishlist_item.delete()
-        return redirect('wishlist')
-    return redirect('signin')
-        
+    user=request.user
+    
+    product = get_object_or_404(Product, pk=pk)
+    
+    wishlist = Wishlist.objects.get(user=user)
+    wishlist_item = WishlistItems.objects.get(Product=product, wishlist=wishlist)
+    wishlist_item.delete()
+    return redirect('wishlist')
+
+    
     

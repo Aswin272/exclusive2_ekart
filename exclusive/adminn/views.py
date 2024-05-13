@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 from django.views.decorators.cache import never_cache
 from products.models import Category,Product,ProductImage,CategoryOffer,ProductOffer
 from . forms import UpdateCategoryForm,ProductForm,ProductImageForm,ProductUpdateForm,AddCategoryForm,AddCouponForm,CategoryOfferForm,ProductOfferForm,EditCouponForm,EditCategoryOfferForm,EditProductOffersForm
@@ -29,12 +29,13 @@ from .models import Coupon
 
 @never_cache
 def adminn(request):
+    
     if 'superuser' in request.session:       
         return redirect('adminn_dashboard') 
     if request.method=='POST':       
         username=request.POST.get('username')
         password=request.POST.get('password')
-             
+            
         try:
             user = authenticate(username=username, password=password)
         except MultipleObjectsReturned:
@@ -42,8 +43,10 @@ def adminn(request):
             messages.error(request, "Invalid username or password. Please try again....")
             return render(request, 'adminn_signin.html')  
           
-        if user is not None and user.is_superuser:          
+        if user is not None and user.is_superuser:   
+                   
             request.session['superuser']=username
+            login(request,user)
             return render(request,'admin_dashboard.html')   
         else:
             messages.error(request, "Invalid username or password. Please try again.")
@@ -294,6 +297,11 @@ def adminorders(request):
                 
                 # Update the status of the order item
                 orderitem.status = new_status
+                if new_status == 'Cancelled':
+                    
+                    orderitem.product.quantity += orderitem.quantity
+                    print("quantity",orderitem.product.quantity)
+                    orderitem.product.save()
                 orderitem.save()
 
                 # Return a success response
@@ -360,7 +368,7 @@ def coupon(request):
     
     
 def addCoupon(request):
-    if 'username' in request.session:
+    if 'superuser' in request.session:
         if request.POST:
             addCoupon_form = AddCouponForm(request.POST)
             if addCoupon_form.is_valid():

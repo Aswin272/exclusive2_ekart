@@ -21,9 +21,8 @@
             <div class="card-body">
               <div class="mb-3 d-flex justify-content-between">
                 <div>
-                  <span class="me-3">22-11-2021</span>
-                  <span class="me-3">#16123222</span>
-                  <span class="me-3">Visa -1234</span>
+                  <span class="me-3">{{order_item.order.created_at}}</span>
+                  
                   {% if order_item.is_cancelled %}
                   <span class="badge rounded-pill bg-danger">Cancelled</span>
                   {% else %}
@@ -68,8 +67,12 @@
                     <td class="text-end">$ {{order_item.price}}</td>
                   </tr>
                   <tr>
-                    <td colspan="2">Shipping</td>
+                    <td colspan="2">Coupon discount for the entire order</td>
+                    {% if order_item.order.coupon %}
+                    <td class="text-end">{{order_item.order.coupon.discount}}</td>
+                    {% else %}
                     <td class="text-end">$00.00</td>
+                    {% endif %}
                   </tr>
                   {% comment %} <tr>
                     <td colspan="2">Discount (Code: NEWYEAR)</td>
@@ -114,10 +117,8 @@
           <div class="card-order-detail mb-4">
             <!-- Shipping information -->
             <div class="card-body">
-              <h3 class="h6">Shipping Information</h3>
-              <strong>FedEx</strong>
-              <span><a href="#" class="text-decoration-underline" target="_blank">FF1234567890</a> <i class="bi bi-box-arrow-up-right"></i> </span>
-              <hr>
+              
+              
               <h3 class="h6">Address</h3>
               <address>
                 <strong>{{order_item.order.user}}</strong><br>

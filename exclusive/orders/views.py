@@ -8,6 +8,8 @@ from django.conf import settings
 from products.models import CategoryOffer,ProductOffer
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
+from decimal import Decimal
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -26,7 +28,7 @@ def orderSuccess(request):
             print(paym)
             user=Customers.objects.get(username=username)
             address=Address.objects.get(pk=selected_address_id)
-            payment='cod'
+            payment='wallet'
             
             
             cart=Cart.objects.get(customer=user)
@@ -81,8 +83,26 @@ def orderSuccess(request):
                 print("total price",total_price)
                 coupon=cart.coupon
                 
-                
-            order=Order.objects.create(user=user,total_price=total_price,address=address,payment=payment,coupon=coupon)
+            
+            if payment=='wallet':
+                print("inside the wallet")
+                wallet,create=Wallet.objects.get_or_create(user=user)
+                if wallet.balance >= total_price:
+                    print("wallet balance ",wallet.balance)
+                    wallet.balance -= total_price
+                    wallet.save()
+                    print("wallet after ordering",wallet.balance)
+                else:
+                    return HttpResponse("Error: Insufficient balance in wallet")
+            
+            order=Order.objects.create(user=user,total_price=total_price,
+                                       street_address=address.street,
+                                       city=address.city,
+                                       district=address.district,
+                                       state=address.state,
+                                       
+                                       pincode=address.pincode,
+                                       payment=payment,coupon=coupon)
             
             
             # if payment=='razorpay':
@@ -206,14 +226,15 @@ def ordercancel(request,pk):
             amount= item.price - coupon_amount
             wallet,created=Wallet.objects.get_or_create(user=user,defaults={'balance':0})
             
-            if amount:
-                amount =float(amount)
-                wallet.balance +=amount
+            if amount > Decimal('0'):
+                wallet.balance += amount
                 wallet.save()
                 
                 Transaction.objects.create(wallet=wallet,amount=amount)
                 print("balance payment will be add to your wallet",amount)
-        item.product.quantity+=quantity
+        print(item.product.quantity)
+        print("quantity",quantity)            
+        item.product.quantity += quantity
         item.product.save()
         
         item.is_cancelled=True

@@ -13,7 +13,11 @@ class Order(models.Model):
     user=models.ForeignKey(Customers,on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     total_price=models.DecimalField(max_digits=10,decimal_places=2)
-    address=models.ForeignKey(Address,on_delete=models.CASCADE)
+    street_address=models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    district=models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=20)
     payment = models.CharField(max_length=100)
     coupon=models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
     

@@ -106,22 +106,31 @@ def sort(request):
         products=Product.objects.all()
         return render(request,'all_product_list.html',{'products':products})
     
-
+@never_cache
 def search(request):
+    print("yesss")
     query = request.GET.get('query', '')
     sort_by = request.GET.get('sort_by', '')
     
-    products = Product.objects.filter(name__icontains=query)
+    if query:
+        
+        products = Product.objects.filter(name__icontains=query)
+    else:
+        products=Product.objects.all()
+        
+    if request.method=="POST":
+        sort_by = request.POST.get('sort_by')
+        print(sort_by)
     
-    if sort_by == 'priceLow':
-        products = products.order_by('price')
-    elif sort_by == 'priceHigh':
-        products = products.order_by('-price')
-    elif sort_by == 'nameAsce':
-        products = products.order_by('name')
-    elif sort_by == 'nameDesc':
-        products = products.order_by('-name')
-    elif sort_by == 'newArrivals':
-        products = products.order_by('-created_at')
+        if sort_by == 'priceLow':
+            products = products.order_by('price')
+        elif sort_by == 'priceHigh':
+            products = products.order_by('-price')
+        elif sort_by == 'nameAsce':
+            products = products.order_by('name')
+        elif sort_by == 'nameDesc':
+            products = products.order_by('-name')
+        elif sort_by == 'newArrivals':
+            products = products.order_by('-created_at')
     
     return render(request, 'search.html', {'products': products, 'query': query})

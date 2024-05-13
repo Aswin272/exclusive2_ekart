@@ -16,7 +16,7 @@
                         <img src="{{ item.product.image.url }}">
                         <div>
                             <p>{{ item.product.name }}</p>
-                            <small>Price: {{ item.product.price }}</small><br>
+                            <small>Price: {{ product_price }}</small><br>
                             <a href="{% url 'cartitem-remove' item.product.id %}">Remove</a>
                         </div>
                     </div>
