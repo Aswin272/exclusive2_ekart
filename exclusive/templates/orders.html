@@ -1,5 +1,7 @@
 {% extends "header.html" %}
 
+{% comment %} {% extends "header.html" %}
+
 {% block content %}
 
 <div class="container mt-5 ">
@@ -15,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in orderitems %}
+      {% for item in orders %}
       <tr>
         
         <td><img src="{{item.product.image.url}}" alt="image"></td>
@@ -51,7 +53,7 @@
             
             
         
-        
+{% comment %}         
         </td>
         
       </tr>
@@ -61,4 +63,49 @@
 </div>
 
 
-{% endblock content %}
+{% endblock content %} {% endcomment %}
+
+
+
+
+
+
+
+
+{% block content %}
+<!-- orders.html -->
+<!-- orders.html -->
+<!-- orders.html -->
+
+    <div class="orders-container">
+        <h1>Your Orders</h1>
+        {% if orders %}
+            {% for order in orders %}
+            <a href="{% url 'order-detail' order.id %}">
+                <div class="orders-order">
+                    <div class="orders-order-details">
+                        <div class="orders-order-id">Order ID: {{ order.id }}</div>
+                        <div class="orders-order-date">Date: {{ order.created_at }}</div>
+
+                      {% if order.is_return %}
+                      <p>{{order.return_status}}</p>
+                      {% else %}
+                        {% if order.is_cancelled or order.status == "Cancelled" %}
+                        <p style="color:red">Order cancelled</p>
+                      
+
+                        {% else %}
+                        <div class="orders-order-status">Status: {{ order.status }}</div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="orders-order-total">${{ order.total_price }}</div>
+                </div>
+              </a>
+            {% endfor %}
+        {% else %}
+            <p>No orders found.</p>
+        {% endif %}
+    </div>
+
+    {% endblock content %}

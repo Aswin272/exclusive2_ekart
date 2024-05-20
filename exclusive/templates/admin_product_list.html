@@ -1,4 +1,75 @@
-{% load static %}
+{% comment %} 
+{% extends "admin_dashboard.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Product List</h1>
+</div>
+<div class="content">
+    <a href="{% url 'add_products' %}"><button class="add-product-btn">Add Product</button></a>
+    <h2>Products</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Quantity</th>
+                <th>Category</th>
+                <th>Action</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="thumbnail">
+                </td>
+                <td>{{product.quantity}}</td>
+                <td >{{product.Category}}</td>
+                <td>
+                    <a class="btn btn-success" href="{% url 'product-update' product.id%}">Update</a>
+                    {% if product.is_active %}
+                    
+                    <a class="btn btn-success" href="{% url 'active-unactive-product' product.id %}">Active</a>
+                    {% else %}
+                    <a class="btn btn-danger" href="{% url 'active-unactive-product' product.id %}">Not Active</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-success" href="{% url 'upload-image' product.id %}">Image</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock content %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,4 +178,5 @@
         </table>
     </div>
 </body>
-</html>
+</html> {% endcomment %}
+

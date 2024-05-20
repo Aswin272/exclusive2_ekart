@@ -136,7 +136,7 @@
     </form>
     
     <!-- Sales report data table -->
-    <table border="1">
+    {% comment %} <table border="1">
         <thead>
             <tr>
                 <th>Date</th>
@@ -147,21 +147,50 @@
         </thead>
         <tbody>
             <!-- Dummy data for demonstration -->
+            {% for order in orders %}
             <tr>
                 <td>2024-05-01</td>
                 <td>Product A</td>
                 <td>100</td>
                 <td>$1000</td>
             </tr>
-            <tr>
-                <td>2024-05-02</td>
-                <td>Product B</td>
-                <td>80</td>
-                <td>$800</td>
-            </tr>
+            
+            {% endfor %}
             <!-- Add more rows as needed -->
         </tbody>
+    </table> {% endcomment %}
+
+
+    <table style="border-collapse:collapse; width:100% ">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Order ID</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Total Price</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Product Name</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            {% for order_item in order_items %}
+            {% if order_item.order == order %}
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;" rowspan="{{ order.orderitem_set.count }}">{{ order.id }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;" rowspan="{{ order.orderitem_set.count }}">{{ order.total_price }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ order_item.product }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ order_item.quantity }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+        </tbody>
     </table>
+
+
+
+
+
+
 
     <h1>{{interval}}</h1>
     <h2>onerall sales count : {{total_sales}}</h2>
@@ -177,5 +206,7 @@
 
     <h1>{{ start_date }}</h1>
 <h1>{{ end_date }}</h1>
+
+
 </body>
 </html>

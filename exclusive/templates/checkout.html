@@ -382,6 +382,18 @@
                     <a href="{% url 'remove-coupon' cart.coupon.id %}"><button>remove</button></a>
                 {% endif %}
            
+            <div class="coupon-rendering mt-5">
+                <h1>Available coupon:</h1>
+                {% for coupon in coupon %}
+                {% if coupon.is_active %}
+                <h4>coupon code : {{coupon.coupon_code}}</h4>
+                <p>{{coupon.coupon_name}}</p>
+                {% endif %}
+                
+                {% endfor %}
+
+            </div>
+
         </div>
     </div>
     <!-- end checkout-row -->

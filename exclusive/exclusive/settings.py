@@ -189,9 +189,11 @@ SOCIALACCOUNT_QUERY_EMAIL=True
 LOGIN_REDIRECT_URL='home'
 
 
-razor_pay_key_id='rzp_test_9WS2jC7ozsZuT9'
+RAZOR_KEY_ID='rzp_test_nFT6IInpQiNYh6'
 
-key_secret='Jg7zuScMrY7jSh3W2Wf21pOf'
+RAZOR_KEY_SECRET='RiLt9vrniUcSDYiXgydORXWL'
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 LOGOUT_REDIRECT_URL = '/signin/'  
 

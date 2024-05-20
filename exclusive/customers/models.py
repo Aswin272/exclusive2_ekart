@@ -7,6 +7,7 @@ from adminn.models import Coupon
 
 
 class Customers(AbstractUser):
+    referrel_code=models.CharField(max_length=100)
     pass
 
 

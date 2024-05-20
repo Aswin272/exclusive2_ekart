@@ -1,9 +1,9 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate,login
 from django.views.decorators.cache import never_cache
-from products.models import Category,Product,ProductImage,CategoryOffer,ProductOffer
+from products.models import Category,Product,ProductImage,CategoryOffer,ProductOffer,Brand
 from . forms import UpdateCategoryForm,ProductForm,ProductImageForm,ProductUpdateForm,AddCategoryForm,AddCouponForm,CategoryOfferForm,ProductOfferForm,EditCouponForm,EditCategoryOfferForm,EditProductOffersForm
-from customers.models import Customers
+from customers.models import Customers,Wallet
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.exceptions import MultipleObjectsReturned
@@ -47,7 +47,8 @@ def adminn(request):
                    
             request.session['superuser']=username
             login(request,user)
-            return render(request,'admin_dashboard.html')   
+            return redirect('adminn_dashboard')
+            # return render(request,'admin_dashboard.html')   
         else:
             messages.error(request, "Invalid username or password. Please try again.")
     return render(request,'adminn_signin.html')
@@ -55,7 +56,42 @@ def adminn(request):
 @never_cache
 def adminn_dashboard(request):
     if 'superuser' in request.session:
-        return render(request,'admin_dashboard.html')
+        top_products=(OrderItem.objects.filter(order__status='Delivered')
+                      .values('product')
+                      .annotate(total_quantity=Sum('quantity'))
+                      .order_by('-total_quantity')[:10])
+        top_category=(OrderItem.objects.filter(order__status='Delivered')
+                        .values('product__Category') 
+                        .annotate(total_quantity=Sum('quantity'))
+                        .order_by('-total_quantity'))
+        top_brands =(OrderItem.objects.filter(order__status='Delivered')
+                     .values('product__brand')
+                     .annotate(total_quantity=Sum('quantity'))
+                     .order_by('-total_quantity')[:10]
+                     )
+        
+        product_with_quantities=[]
+        for item in top_products:
+            product=Product.objects.get(id=item['product'])
+            product_with_quantities.append({'product':product,'total_quantity':item['total_quantity']})
+            
+        categories_with_quantities = []
+        for item in top_category:
+            category = Category.objects.get(id=item['product__Category'])
+            categories_with_quantities.append({
+                'category': category,
+                'total_quantity': item['total_quantity']
+            })
+        
+        brand_with_quantity=[]
+        for item in top_brands:
+            brand=Brand.objects.get(id=item['product__brand'])
+            brand_with_quantity.append({
+                'brand':brand,
+                'total_quantity':item['total_quantity']
+            })
+        
+        return render(request,'admin_dashboard.html',{'top_selling_product':product_with_quantities,'top_selling_category':categories_with_quantities,'top_selling_brand':brand_with_quantity})
     return redirect('adminn')
 
 
@@ -281,50 +317,110 @@ def uploadImage(request,pk):
     return render(request,'uploadImage.html')
 
 
+
 def adminorders(request):
-    print("triggered")
+    print("yesss")
     if 'superuser' in request.session:
-        
-        if request.method == 'POST':
-        
-        # Get the order item ID and new status from the AJAX request
-            orderitem_id = request.POST.get('orderitem_id')
-            new_status = request.POST.get('status')
+        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            order_id = request.POST.get('order_id')
+            new_status = request.POST.get('new_status')
+            print(order_id)
+            print(new_status)
+            
+            
 
             try:
-                # Retrieve the order item from the database
-                orderitem = OrderItem.objects.get(id=orderitem_id)
-                
-                # Update the status of the order item
-                orderitem.status = new_status
-                if new_status == 'Cancelled':
+                order = Order.objects.get(pk=order_id)
+                print(order.user)
+                if order.is_return:
+                    if new_status=='Returned':
+                        wallet=Wallet.objects.get(user=order.user)
+                        
+                        wallet.balance +=order.total_price
+                        wallet.save()
+                        
+                    order.return_status=new_status
+                    if order.coupon:
+                        order.coupon=None
+                    order.save()
                     
-                    orderitem.product.quantity += orderitem.quantity
-                    print("quantity",orderitem.product.quantity)
-                    orderitem.product.save()
-                orderitem.save()
-
-                # Return a success response
+                if new_status =="Cancelled":
+                    print("order cancelled")
+                    order_items=OrderItem.objects.filter(order=order)
+                    for item in order_items: 
+                        item.product.quantity += item.quantity
+                        item.product.save()
+                if not order.is_return:
+                    
+                    order.status = new_status
+                    order.save()
                 return JsonResponse({'success': True})
-
-            except OrderItem.DoesNotExist:
-                # Return an error response if the order item is not found
-                return JsonResponse({'success': False, 'error': 'Order item does not exist'})
-
-        # Return a bad request response if the request method is not POST
-        # return JsonResponse({'success': False, 'error': 'Bad request'})
-            
-            
+            except Order.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Order does not exist'})
         
-        
-        all_orders = Order.objects.prefetch_related('orderitem_set').order_by('-created_at')
-        
-        for order in all_orders:
-            for orderitem in order.orderitem_set.all():
-                orderitem.total_price = orderitem.quantity * orderitem.product.price
-        
-        return render(request,'admin-allorders.html',{'orders':all_orders})
+        orders = Order.objects.all().order_by('-id')
+        return render(request, 'admin-allorders.html', {'orders': orders})
     return redirect('signin')
+
+
+
+def adminOrderDetail(request,pk):
+    if 'superuser' in request.session:
+        
+        order=Order.objects.get(id=pk)
+        order_items = OrderItem.objects.filter(order=order)
+        total_order_price = sum(item.price for item in order_items)
+
+        return render(request,'admin-orderdetailpage.html', {'order': order, 'order_items': order_items, 'total_order_price': total_order_price})
+    return redirect('signin')
+
+
+
+
+# def adminorders(request):
+#     print("triggered")
+#     if 'superuser' in request.session:
+        
+#         if request.method == 'POST':
+        
+#         # Get the order item ID and new status from the AJAX request
+#             orderitem_id = request.POST.get('orderitem_id')
+#             new_status = request.POST.get('status')
+
+#             try:
+#                 # Retrieve the order item from the database
+#                 orderitem = OrderItem.objects.get(id=orderitem_id)
+                
+#                 # Update the status of the order item
+#                 orderitem.status = new_status
+#                 if new_status == 'Cancelled':
+                    
+#                     orderitem.product.quantity += orderitem.quantity
+#                     print("quantity",orderitem.product.quantity)
+#                     orderitem.product.save()
+#                 orderitem.save()
+
+#                 # Return a success response
+#                 return JsonResponse({'success': True})
+
+#             except OrderItem.DoesNotExist:
+#                 # Return an error response if the order item is not found
+#                 return JsonResponse({'success': False, 'error': 'Order item does not exist'})
+
+#         # Return a bad request response if the request method is not POST
+#         # return JsonResponse({'success': False, 'error': 'Bad request'})
+            
+            
+        
+        
+#         all_orders = Order.objects.prefetch_related('orderitem_set').order_by('-created_at')
+        
+#         for order in all_orders:
+#             for orderitem in order.orderitem_set.all():
+#                 orderitem.total_price = orderitem.quantity * orderitem.product.price
+        
+#         return render(request,'admin-allorders.html',{'orders':all_orders})
+#     return redirect('signin')
     
     
     
@@ -532,7 +628,10 @@ def salesreport(request):
 
             # Define initial queryset based on selected interval
             if interval == 'daily':
-                orders = Order.objects.filter(created_at__date=datetime.now().date())
+                print("its daily")
+                start_of_day = datetime.now().date()
+                end_of_day = start_of_day + timedelta(days=1)
+                orders = Order.objects.filter(created_at__date__range=[start_of_day, end_of_day])
             elif interval == 'weekly':
                 start_of_week = datetime.now().date() - timedelta(days=datetime.now().weekday())
                 orders = Order.objects.filter(created_at__date__gte=start_of_week)
@@ -547,18 +646,23 @@ def salesreport(request):
             # Aggregate sales data for delivered orders
             order_items = OrderItem.objects.filter(
                 order__in=orders,
-                status='Delivered'
+                order__status='Delivered',   
             )
-
-            total_sales = order_items.count()
+            
+            # total_sales = order_items.count()
+            
+            delivered_orders = orders.filter(status='Delivered')
+            delivered_order_items=OrderItem.objects.filter(order__in=delivered_orders)
+            
+            total_sales=delivered_orders.count()
 
             total_product_price = order_items.aggregate(
-                total_product_price=Sum(F('product__price') * F('quantity'))
+                total_product_price=Sum('price')
             )['total_product_price'] or 0
 
             total_coupon_discount = orders.filter(
                 coupon__isnull=False,
-                orderitem__status='Delivered'
+                status='Delivered'
             ).distinct().aggregate(
                 total_coupon_discount=Sum('coupon__discount')
             )['total_coupon_discount'] or 0
@@ -570,6 +674,7 @@ def salesreport(request):
             total_order_amount = order_items.aggregate(
                 total_order_amount=Sum('price')
             )['total_order_amount'] or 0
+
 
 
             product_price_after_averall_discount=total_order_amount - total_coupon_discount
@@ -584,8 +689,9 @@ def salesreport(request):
                 'total_order_amount': total_order_amount,
                 'product_price_after_averall_discount': product_price_after_averall_discount,
                 'total_coupon_discount': total_coupon_discount,
-            
-                'overall_discount':overall_discount
+                'overall_discount':overall_discount,
+                'orders': delivered_orders,
+                'order_items':delivered_order_items
             }
 
             # Render HTML template
@@ -600,8 +706,27 @@ def salesreport(request):
                 return HttpResponse('We had some errors <pre>' + html + '</pre>')
             return response
         else:
+            
+            sales_data = (
+                OrderItem.objects
+                .filter(order__status='Delivered')
+                .values('product__name')
+                .annotate(total_quantity=Sum('quantity'))
+                .order_by('-total_quantity')
+            )
+
+            # Prepare data for the chart
+            products = [item['product__name'] for item in sales_data]
+            quantities = [item['total_quantity'] for item in sales_data]
+
+            context = {
+                'products': products,
+                'quantities': quantities,
+            }
+                    
+            
             # Render form for selecting interval
-            return render(request, 'admin-sales-report.html')
+            return render(request, 'admin-sales-report.html',context)
     return redirect('signin')
 
 
@@ -638,5 +763,8 @@ def salesreport(request):
 #     return response
 
 
+def brand(request):
+    brands=Brand.objects.all()
+    return render(request,'admin-brands.html',{'brands':brands})
 
 

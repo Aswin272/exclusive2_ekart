@@ -62,10 +62,10 @@ def contains_special_characters(value):
 
 
 def redirect_return_url(request):
-    # Extract the return URL parameter
+    
     return_url = request.GET.get('return_url')
     
-    # Determine the redirect URL based on the return URL parameter
+    
     if return_url == 'user-address':
         redirect_url = reverse('user-address')
     else:
@@ -562,8 +562,8 @@ def checkout(request):
                     total_price=total_price - cart.coupon.discount
                     
                 
-                
-                return render(request,'checkout.html',{'alladdress':all_address,'products':cart_items,'total_price':total_price,'cart':cart,'product_price':product_price,'wallet':wallet})
+                coupon=Coupon.objects.all()
+                return render(request,'checkout.html',{'alladdress':all_address,'products':cart_items,'total_price':total_price,'cart':cart,'product_price':product_price,'wallet':wallet,'coupon':coupon})
             
             else:
                 print("no items")

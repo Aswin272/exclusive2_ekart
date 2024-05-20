@@ -1141,3 +1141,51 @@ th:last-child{
   --bs-text-opacity: 1;
   color: inherit!important;
 }
+
+
+
+/* order.html --------------------*/
+
+
+.orders-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.orders-order {
+  border-radius: 8px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+}
+.orders-order:hover {
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+.orders-order-details {
+  flex: 1;
+}
+.orders-order-id {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.orders-order-date {
+  color: #666;
+}
+.orders-order-status {
+  text-transform: capitalize;
+  font-weight: bold;
+  color: #1e90ff;
+}
+.orders-order-total {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}

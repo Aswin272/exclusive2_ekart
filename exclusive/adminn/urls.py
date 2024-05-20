@@ -29,6 +29,7 @@ urlpatterns = [
     path('upload-image/<pk>',views.uploadImage,name='upload-image'),
     
     path('admin-orders/',views.adminorders,name="admin-orders"),
+    path('admin-order-detail/<pk>',views.adminOrderDetail,name="admin-order-detail"),
     
     
     path('admin-coupon/',views.coupon,name='admin-coupon'),
@@ -47,6 +48,8 @@ urlpatterns = [
     
     path('sales-report/',views.salesreport,name="sales-report"),
     # path('sales-report/<str:interval>/', views.generate_sales_report, name='generate_sales_report'),
+    
+    path('admin-brand/',views.brand,name="brand")
 
 ]
 

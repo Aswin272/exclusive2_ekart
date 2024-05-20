@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from customers . models import Customers
+from customers . models import Customers,Wallet
 from django.db.models import Q
 from django.contrib.auth.password_validation import validate_password
 import random
@@ -11,6 +11,7 @@ import re
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned,ObjectDoesNotExist
+
 
 
 # Create your views here.
@@ -32,14 +33,35 @@ def otp_verification(request):
         if entered_otp == stored_otp:
             username=request.session.get('username')
             email=request.session.get('email')
+            referrel_code=request.session.get('referrel_code')
+            
+            print("referrr",referrel_code)
             # hash password
             raw_password=request.session.get('password')
             hashed_password=make_password(raw_password)
             
             user=Customers.objects.create(username=username,email=email,password=hashed_password)
+            wallet=Wallet.objects.create(user=user)
+            
+            if referrel_code:
+                try:
+                    referred_by=Customers.objects.get(referrel_code=referrel_code)
+                    print(referred_by)
+                    wallet.balance += 100
+                    wallet.save()
+                    referred_by_wallet=Wallet.objects.get(user=referred_by)
+                    referred_by_wallet.balance += 100
+                    referred_by_wallet.save()
+                except Customers.DoesNotExist:
+                    pass
+            
+                    
+            
+            
             del request.session['otp']
             del request.session['otp_sent_time']
             del request.session['username']
+            del request.session['referrel_code']
             
             
             return redirect('signin')
@@ -81,15 +103,20 @@ def resend_otp(request):
 
 @never_cache
 def signup(request):
+    
     if 'username' in request.session:       
         return redirect('home')
-    
+    print("sigiup")
     if request.method=='POST':
+        print("inside signup")
         username=request.POST.get('username')
         email=request.POST.get('email')
         password=request.POST.get('password')
+        referrel_code=request.POST.get('referral_code')
+        print("referrel_code:",referrel_code)
         stripped_username=username.strip()
         stripped_email=email.lower().strip()
+        
         if not (username and email and password):
             error_message="all fields are required"
             return render(request,'signup.html',{'error_message':error_message})
@@ -109,6 +136,7 @@ def signup(request):
         #     error_message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, one special character, and no spaces"
         #     return render(request, 'signup.html', {'error_message': error_message})
         
+        print("nooooo")
         otp = random.randint(100000, 999999)
         print(otp)
         request.session['otp']=str(otp)
@@ -116,6 +144,7 @@ def signup(request):
         request.session['username'] = username
         request.session['email'] = email
         request.session['password'] = password
+        request.session['referrel_code'] = referrel_code
         
         subject = 'OTP for Signup'
         message = f'Your OTP for signup is: {otp}'

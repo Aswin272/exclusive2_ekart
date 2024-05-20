@@ -114,22 +114,40 @@
                  <li> <a href="{% url 'category-offers'%}">Category Offers</a></li>
                  <li><a href="{% url 'product-offers' %}">Product offer</a></li>
                  <li><a href="{% url 'sales-report' %}">Sales Report</a></li>
+                 <li><a href="{% url 'brand' %}">Brand</a></li>
              </ul>
          </div>
      </div>
      <div class="content">
-         <div class="header">
-             <h1>Admin Panel</h1>
-         </div>
-         <div class="container">
-             <div class="main">
-                 <!-- Main content goes here -->
-                 <h2>Welcome to the Admin Panel</h2>
-                 <p>This is a simple admin panel template.</p>
-             </div>
-             <!-- Add additional content or sidebar here if needed -->
-         </div>
+        
+        <h1>Top 10 Best Selling Products</h1>
+    <ul>
+        {% for item in top_selling_product %}
+            <li>{{ item.product.name }} - {{ item.total_quantity }} sold</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Best Selling Categories</h1>
+    <ul>
+        {% for item in top_selling_category %}
+            <li>{{ item.category.name }} - {{ item.total_quantity }} items sold</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Best Selling brand</h1>
+    <ul>
+         {% for item in top_selling_brand %}
+         
+         <h1>{{item.brand.name}} - {{item.total_quantity}}</h1>
+         
+         {% endfor %}
+    </ul>
+
      </div>
+
+
+     
+
  </body>
  </html>
  
