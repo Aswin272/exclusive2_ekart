@@ -1,0 +1,105 @@
+{% extends "dashboard.html" %}
+
+
+
+{% block content %}
+
+
+<script>
+    function toggleCustomDateFields() {
+        var periodSelect = document.getElementById('period');
+        var customDateFields = document.getElementById('custom-date-fields');
+
+        if (periodSelect.value === 'custom') {
+            customDateFields.style.display = 'block';  // Show custom date fields
+        } else {
+            customDateFields.style.display = 'none';   // Hide custom date fields
+        }
+    }
+
+    // Call the function on page load to set the initial state
+    window.onload = function() {
+        toggleCustomDateFields();
+    };
+</script>
+
+
+
+
+
+<div class="container-fluid">
+
+    <form method="get">
+        <label for="period">Select Period:</label>
+        <select id="period" name="period"  onchange="toggleCustomDateFields()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="custom">Custom</option>
+        </select>
+        <div id="custom-date-fields" class="custom-date-fields" style="display: none;">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date">
+        </div>
+        
+        <button class="btn btn-dark" type="submit">Generate Report</button>
+    </form>
+
+    <table style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Order ID</th>
+                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Total Price</th>
+                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Product</th>
+                <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in delivered_orders %}
+            <tr>
+                <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">{{ order.id }}</td>
+                <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">{{ order.total_price }}</td>
+                <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
+                    <ul>
+                        {% for order_item in order.orderitem_set.all %}
+                        <li>{{ order_item.product.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
+                    <ul>
+                        {% for order_item in order.orderitem_set.all %}
+                        <li>{{ order_item.quantity }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+
+    <h1>Sales Report</h1>
+    <p>Total Delivered Orders: {{ delivered_orders_count }}</p>
+    <p>total_products_price{{total_products_price}}</p>
+    <p>total_products_price_without_quantity{{total_products_price_without_quantity}}</p>
+
+
+    <p>Total Sales (Delivered Orders): ${{ total_sales_delivered }}</p>
+    <p>full_discount {{full_discount}}</p>
+    <p>Total Coupon Discount: ${{ total_coupon_discount }}</p>
+    <p>overall_product_discount{{overall_product_discount}}</p>
+
+
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <button type="submit">Download</button>
+    </form>
+</div>
+
+    {% endblock content %}

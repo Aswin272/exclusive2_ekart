@@ -1,3 +1,250 @@
+{% extends "dashboard.html" %}
+
+
+
+
+{% block content %}
+
+
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card">
+          <div class="card-header p-3 pt-2">
+            <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 position-absolute">
+              <i class="material-icons opacity-10">weekend</i>
+            </div>
+            <div class="text-end pt-1">
+              <p class="text-sm mb-0 text-capitalize">Today's Money</p>
+              <h4 class="mb-0">$ {{overall_total_sale_amount}}</h4>
+            </div>
+          </div>
+          <hr class="dark horizontal my-0">
+          <div class="card-footer p-3">
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+        <div class="card">
+          <div class="card-header p-3 pt-2">
+            <div class="icon icon-lg icon-shape bg-gradient-primary shadow-primary text-center border-radius-xl mt-n4 position-absolute">
+              <i class="material-icons opacity-10">person</i>
+            </div>
+            <div class="text-end pt-1">
+              <p class="text-sm mb-0 text-capitalize">Total Users</p>
+              <h4 class="mb-0">{{total_users}}</h4>
+            </div>
+          </div>
+          <hr class="dark horizontal my-0">
+          <div class="card-footer p-3">
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-sm-6">
+        <div class="card">
+          <div class="card-header p-3 pt-2">
+            <div class="icon icon-lg icon-shape bg-gradient-info shadow-info text-center border-radius-xl mt-n4 position-absolute">
+              <i class="material-icons opacity-10">weekend</i>
+            </div>
+            <div class="text-end pt-1">
+              <p class="text-sm mb-0 text-capitalize">Sales</p>
+              <h4 class="mb-0">{{overall_total_sales}}</h4>
+            </div>
+          </div>
+          <hr class="dark horizontal my-0">
+          <div class="card-footer p-3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="select-group mt-5">
+        <button class="btn btn-dark">
+        <form method="GET" action="">
+            <select name="timeframe" id="timeframe-select" onchange="this.form.submit()">
+                <option value="weekly" {% if selected_timeframe == 'weekly' %}selected{% endif %}>Weekly</option>
+                <option value="monthly" {% if selected_timeframe == 'monthly' %}selected{% endif %}>Monthly</option>
+                <option value="yearly" {% if selected_timeframe == 'yearly' %}selected{% endif %}>Yearly</option>
+            </select>
+        </form>
+    </button>
+    </div>
+
+
+    <div class="row mt-4">
+      <div class="col-lg-4 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2 ">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+            <div class="bg-gradient-primary shadow-primary border-radius-lg py-3 pe-1">
+              <div class="chart">
+                <canvas id="chart-bars" class="chart-canvas" height="170"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h6 class="mb-0 ">Total sales</h6>
+            
+            
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 mt-4 mb-4">
+        <div class="card z-index-2  ">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+            <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
+              <div class="chart">
+                <canvas id="chart-line" class="chart-canvas" height="170"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h6 class="mb-0 "> Total profit </h6>
+            
+          </div>
+        </div>
+      </div>
+      {% comment %} <div class="col-lg-4 mt-4 mb-3">
+        <div class="card z-index-2 ">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2 bg-transparent">
+            <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">
+              <div class="chart">
+                <canvas id="chart-line-tasks" class="chart-canvas" height="170"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h6 class="mb-0 ">Completed Tasks</h6>
+            <p class="text-sm ">Last Campaign Performance</p>
+            <hr class="dark horizontal">
+            <div class="d-flex ">
+              <i class="material-icons text-sm my-auto me-1">schedule</i>
+              <p class="mb-0 text-sm">just updated</p>
+            </div>
+          </div>
+        </div>
+      </div> {% endcomment %}
+    </div>
+
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100">
+          <div class="card-header pb-0">
+            <h4>Best Product</h4>
+            
+          </div>
+          <div class="card-body p-3">
+            <div class="">
+                {% for item in products_with_quantities %}
+                <div class="mb-3">
+
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">{{item.product.name}}   -   {{item.total_quantity}}</h6>
+                  
+                </div>
+                {% endfor %}
+              
+              {% comment %} <div class="timeline-block mb-3">
+                <span class="timeline-step">
+                  <i class="material-icons text-danger text-gradient">code</i>
+                </span>
+                <div class="timeline-content">
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">New order #1832412</h6>
+                  <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 11 PM</p>
+                </div>
+              </div>
+              <div class="timeline-block mb-3">
+                <span class="timeline-step">
+                  <i class="material-icons text-info text-gradient">shopping_cart</i>
+                </span>
+                <div class="timeline-content">
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">Server payments for April</h6>
+                  <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">21 DEC 9:34 PM</p>
+                </div>
+              </div>
+              <div class="timeline-block mb-3">
+                <span class="timeline-step">
+                  <i class="material-icons text-warning text-gradient">credit_card</i>
+                </span>
+                <div class="timeline-content">
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">New card added for order #4395133</h6>
+                  <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">20 DEC 2:20 AM</p>
+                </div>
+              </div>
+              <div class="timeline-block mb-3">
+                <span class="timeline-step">
+                  <i class="material-icons text-primary text-gradient">key</i>
+                </span>
+                <div class="timeline-content">
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">Unlock packages for development</h6>
+                  <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">18 DEC 4:54 AM</p>
+                </div>
+              </div>
+              <div class="timeline-block">
+                <span class="timeline-step">
+                  <i class="material-icons text-dark text-gradient">payments</i>
+                </span>
+                <div class="timeline-content">
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">New order #9583120</h6>
+                  <p class="text-secondary font-weight-bold text-xs mt-1 mb-0">17 DEC</p>
+                </div>
+              </div>
+            </div> {% endcomment %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+      <div class="col-lg-4 col-md-6 mt-4">
+        <div class="card h-100">
+          <div class="card-header pb-0">
+            <h4>Best Category</h4>
+            
+          </div>
+          <div class="card-body p-3">
+            <div class="">
+                {% for item in categories_with_quantities %}
+                <div class="mb-3">
+
+                  <h6 class="text-dark text-sm font-weight-bold mb-0">{{item.category.name}}   -   {{item.total_quantity}}</h6>
+                  
+                </div>
+                {% endfor %}
+              
+              
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+      
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% comment %} <h1>dashboard</h1>
 <div>
     
@@ -11,7 +258,7 @@
 
 
 
- <!DOCTYPE html>
+ {% comment %} <!DOCTYPE html>
  <html lang="en">
  <head>
      <meta charset="UTF-8">
@@ -150,4 +397,11 @@
 
  </body>
  </html>
- 
+  {% endcomment %}
+
+
+
+
+
+
+  

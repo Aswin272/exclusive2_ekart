@@ -241,12 +241,14 @@
                                                     <input type="radio" name="checkout-pay-method" id="checkout-pay-methodoption2" value="razorpay" class="checkout-card-radio-input">
                                                     <span class="checkout-card-radio py-3 text-center checkout-text-truncate">
                                                         <i class="bx bxl-paypal d-block h2 mb-3"></i>
-                                                        Paypal
+                                                        Razorpay
                                                     </span>
                                                 </label>
                                             </div>
                                         </div>
 
+
+                                        {% if total_price > 999 %}
                                         <div class="checkout-col-lg-3 checkout-col-sm-6">
                                             <div>
                                                 <label class="checkout-card-radio-label">
@@ -259,6 +261,8 @@
                                                 </label>
                                             </div>
                                         </div>
+                                        {% endif %}
+
 
                                         <div class="checkout-col-lg-3 checkout-col-sm-6">
                                             <div>

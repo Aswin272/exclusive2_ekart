@@ -29,14 +29,16 @@ class BlockMiddleware:
             
             username=request.session['username']
             try:
-                
+                print("tryyyy")
                 user=Customers.objects.get(username=username)
             
                 if user.is_active == False:
+                    print("not activee")
                     request.session.flush() 
                     
                     return redirect('blocked')
             except Customers.DoesNotExist:
+                print("excepttt")
                 pass
             
         

@@ -252,7 +252,7 @@ def cart(request):
             #     print(items.quantity)
             
             
-            product_price=None
+            # product_price=None
             for item in cart_items:
                 
                 category_offer = CategoryOffer.objects.filter(category=item.product.Category,
@@ -272,23 +272,23 @@ def cart(request):
                     
                 if category_offer and product_offer:
                     if category_product_price < product_product_price:
-                        product_price = category_product_price
+                        item.product_price = category_product_price
                     else:
-                        product_price = product_product_price
+                        item.product_price = product_product_price
                 elif category_offer:
-                    product_price=category_product_price
+                    item.product_price=category_product_price
                 elif product_offer:
-                    product_price = product_product_price
+                    item.product_price = product_product_price
                     
                 else:
-                    product_price = item.product.price
+                    item.product_price = item.product.price
                 
-                item.total_price = product_price * item.quantity
+                item.total_price = item.product_price * item.quantity
                 
             total_price = sum(item.total_price for item in cart_items)
             print("totalpriceee",total_price)
-            print("productprice",product_price)
-            return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price,'product_price':product_price})
+            # print("productprice",product_price)
+            return render(request,'cart.html',{'cart_items': cart_items,'total_price':total_price})
         except Customers.DoesNotExist:
             print("customer does not exist")
             return redirect('signin')
@@ -502,6 +502,13 @@ def checkout(request):
             cart_items = CartItem.objects.filter(cart=cart)
             if cart_items.exists():
                 for item in cart_items:
+                    print("chechking")  
+                    print(item.product.quantity)
+                    print(item.quantity)
+                    
+                    if item.quantity > item.product.quantity:
+                        messages.error(request, f"Quantity for {item.product.name} exceeds available stock.")
+                        return redirect('cart')
                     
                     category_offer = CategoryOffer.objects.filter(category=item.product.Category,
                                                                start_date__lte=timezone.now(),
@@ -527,6 +534,7 @@ def checkout(request):
                         product_price = item.product.price
                     
                     item.total_price = product_price * item.quantity
+                    
                     
                     
                     
@@ -559,7 +567,13 @@ def checkout(request):
                     cart.save()
                 
                 if cart.coupon:
-                    total_price=total_price - cart.coupon.discount
+                    if total_price < cart.coupon.min_purchase_amount:
+                        print("nonee")
+                        cart.coupon=None
+                        cart.save()
+                    else:
+                        
+                        total_price=total_price - cart.coupon.discount
                     
                 
                 coupon=Coupon.objects.all()

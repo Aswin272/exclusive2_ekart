@@ -1,3 +1,101 @@
+{% extends "dashboard.html" %}
+
+
+
+    {% block content %}
+    
+    <div class="container">
+    <div class="row">
+        <div class="col-12">
+          <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center px-3">
+                <h6 class="text-white text-capitalize ps-3">Category table</h6>
+                <a href="{% url 'add-category' %}"><button class="btn btn-light me-3">Add Category</button></a>
+              </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
+    
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Product</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Quantity</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Employed</th>
+                      <th class="text-secondary opacity-7"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <h5>{{category.id}}</h5>
+                        </td>
+                      <td>
+                        <div class="d-flex px-2 py-1">
+                          <div>
+                            <img src="{{ category.image.url }}" class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                          </div>
+                          
+                        </div>
+                      </td>
+                      <td>
+                        <h6 class="mb-0 text-sm">{{category.name}}</h6>
+
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                        {% comment %} <a class="btn btn-success" href="{% url 'product-update' product.id%}">Update</a>
+                        <a class="btn btn-success" href="{% url 'update-category' category.id %}">Update</a> {% endcomment %}
+                        {% if category.is_active %}
+                        
+                        <a class="btn btn-success" href="{% url 'active-unactive-category' category.id %}">Active</a>
+                        {% else %}
+                        <a class="btn btn-danger" href="{% url 'active-unactive-category' category.id %}">Not Active</a>
+
+                        {% endif %}
+                 </td>
+                      <td class="align-middle text-center">
+                        <a class="btn btn-success" href="{% url 'update-category' category.id %}">Update</a>
+
+                        {% comment %} <span class="text-secondary text-xs font-weight-bold">{{product.Category}}</span> {% endcomment %}
+                      </td>
+                      <td class="align-middle">
+                        
+                        {% comment %} <a class="btn btn-info" href="{% url 'upload-image' product.id %}">Image</a> {% endcomment %}
+    
+                        
+                      </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+</div>
+    
+    
+    
+    {% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     {% comment %} <h2><a class="btn btn-success" href="{% url 'add-category' %}">add category</a></h2>
@@ -10,7 +108,7 @@
 <h3>{{categories.name}}</h3>
 
 {% endfor %} {% endcomment %}
-
+{% comment %} 
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -117,4 +215,4 @@
         </table>
     </div>
 </body>
-</html>
+</html> {% endcomment %}

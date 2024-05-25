@@ -14,6 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 # Create your views here.
 
@@ -367,7 +369,7 @@ def paymenthomepage(request):
     currency='INR'
     
     
-    amount=float(total_price)
+    amount=float(total_price) * 100
     print(amount)
     
     
@@ -416,7 +418,7 @@ def paymenthandler(request):
         
                     address = Address.objects.get(pk=address_id)
 
-                    amount=float(total_price)
+                    amount=float(total_price) * 100
                     try:
                         print("success try")
                         # capture the payemt
@@ -553,3 +555,29 @@ def returnrequest(request,pk):
         order.save()
         return redirect('orders')
     return redirect('signin')
+
+
+@login_required
+def download_order_detail_pdf(request, pk):
+    order = get_object_or_404(Order, pk=pk, user=request.user)
+    order_items = OrderItem.objects.filter(order=order)
+    total_order_price = sum(item.price for item in order_items)
+
+    # Render the order detail template as a string
+    html_template = render_to_string('orderdetailpdf.html', {'order': order, 'order_items': order_items, 'total_order_price': total_order_price})
+
+    # Create a PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_detail_{pk}.pdf"'
+
+    # Convert HTML to PDF
+    pisa_status = pisa.CreatePDF(
+        html_template,
+        dest=response,
+        encoding='UTF-8'
+    )
+
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF file')
+
+    return response

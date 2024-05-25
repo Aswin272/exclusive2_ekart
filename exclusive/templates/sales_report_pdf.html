@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+    <div class="container-fluid">
+
+        <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Order ID</th>
+                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Total Price</th>
+                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Product</th>
+                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in delivered_orders %}
+                <tr>
+                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">{{ order.id }}</td>
+                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">{{ order.total_price }}</td>
+                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
+                        <ul>
+                            {% for order_item in order.orderitem_set.all %}
+                            <li>{{ order_item.product.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">
+                        <ul>
+                            {% for order_item in order.orderitem_set.all %}
+                            <li>{{ order_item.quantity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    
+    
+    
+        <h1>Sales Report</h1>
+        <p>Total Delivered Orders: {{ delivered_orders_count }}</p>
+        <p>total_products_price{{total_products_price}}</p>
+        <p>total_products_price_without_quantity{{total_products_price_without_quantity}}</p>
+    
+    
+        <p>Total Sales (Delivered Orders): ${{ total_sales_delivered }}</p>
+        <p>full_discount {{full_discount}}</p>
+        <p>Total Coupon Discount: ${{ total_coupon_discount }}</p>
+        <p>overall_product_discount{{overall_product_discount}}</p>
+
+
+
+
+</body>
+</html>

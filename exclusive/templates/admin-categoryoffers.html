@@ -1,4 +1,96 @@
-<!DOCTYPE html>
+{% extends "dashboard.html" %}
+
+
+{% block content %}
+
+
+
+
+<div class="card">
+    <div class="card-header pb-0 px-3 d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Category Offer Information</h3>
+        <a href="{% url 'add-category-offer' %}">
+            <button class="btn btn-primary">Add Category offer</button>
+        </a>
+    </div>
+    <div class="card-body pt-4 p-3">
+      <ul class="list-group">
+        
+        {% for offer in categoryoffers %}
+        <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
+          <div class="d-flex flex-column">
+            <h3 class="mb-3 text-sm">{{ offer.category }}</h3>
+            <span class="mb-2 text-xs">Category discount percentage: <span class="text-dark font-weight-bold ms-sm-2">{{ offer.discount_percentage }}</span></span>
+            <span class="mb-2 text-xs">Start Date: <span class="text-dark ms-sm-2 font-weight-bold">{{ offer.start_date }}</span></span>
+            <span class="text-xs">End Date: <span class="text-dark ms-sm-2 font-weight-bold">{{ offer.end_date }}</span></span>
+          </div>
+          <div class="ms-auto text-end">
+            <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" data-toggle="modal" data-target="#deleteModal" data-url="{% url 'delete-categoryoffer' offer.id %}"><i class="material-icons text-sm me-2">delete</i>Delete</a>
+            <a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit-category-offer' offer.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this offer?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteButton" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var deleteUrl = button.data('url');
+        var modal = $(this);
+        modal.find('#confirmDeleteButton').attr('href', deleteUrl);
+    });
+</script>
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -64,4 +156,4 @@
 </div>
 
 </body>
-</html>
+</html> {% endcomment %}

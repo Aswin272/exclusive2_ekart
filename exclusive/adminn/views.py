@@ -11,7 +11,7 @@ from orders.models import Order,OrderItem
 from django.http import JsonResponse
 from django.db.models import F, ExpressionWrapper, DecimalField
 from django.template.loader import render_to_string
-
+from django.utils import timezone
 from datetime import datetime, timedelta
 from django.http import HttpResponse
 
@@ -20,6 +20,11 @@ from xhtml2pdf import pisa
 from django.db.models import Sum
 
 from .models import Coupon
+from django.db.models import Count
+from django.db.models.functions import ExtractMonth, ExtractWeek, ExtractYear
+import calendar
+from django.urls import reverse
+from django.utils.timezone import now
 
 
 
@@ -56,6 +61,7 @@ def adminn(request):
 @never_cache
 def adminn_dashboard(request):
     if 'superuser' in request.session:
+        
         top_products=(OrderItem.objects.filter(order__status='Delivered')
                       .values('product')
                       .annotate(total_quantity=Sum('quantity'))
@@ -64,11 +70,11 @@ def adminn_dashboard(request):
                         .values('product__Category') 
                         .annotate(total_quantity=Sum('quantity'))
                         .order_by('-total_quantity'))
-        top_brands =(OrderItem.objects.filter(order__status='Delivered')
-                     .values('product__brand')
-                     .annotate(total_quantity=Sum('quantity'))
-                     .order_by('-total_quantity')[:10]
-                     )
+        # top_brands =(OrderItem.objects.filter(order__status='Delivered')
+        #              .values('product__brand')
+        #              .annotate(total_quantity=Sum('quantity'))
+        #              .order_by('-total_quantity')[:10]
+        #              )
         
         product_with_quantities=[]
         for item in top_products:
@@ -83,15 +89,78 @@ def adminn_dashboard(request):
                 'total_quantity': item['total_quantity']
             })
         
-        brand_with_quantity=[]
-        for item in top_brands:
-            brand=Brand.objects.get(id=item['product__brand'])
-            brand_with_quantity.append({
-                'brand':brand,
-                'total_quantity':item['total_quantity']
-            })
+        # brand_with_quantity=[]
+        # for item in top_brands:
+        #     brand=Brand.objects.get(id=item['product__brand'])
+        #     brand_with_quantity.append({
+        #         'brand':brand,
+        #         'total_quantity':item['total_quantity']
+        #     })
         
-        return render(request,'admin_dashboard.html',{'top_selling_product':product_with_quantities,'top_selling_category':categories_with_quantities,'top_selling_brand':brand_with_quantity})
+        # return render(request,'admin_dashboard.html',{'top_selling_product':product_with_quantities,'top_selling_category':categories_with_quantities,'top_selling_brand':brand_with_quantity})
+        
+        
+        current_year = timezone.now().year
+        timeframe = request.GET.get('timeframe', 'monthly')
+
+        if timeframe == 'weekly':
+            sales_data = Order.objects.filter(
+                created_at__year=current_year,
+                status='Delivered',
+                is_cancelled=False
+            ).annotate(week=ExtractWeek('created_at')).values('week').annotate(
+                count=Count('id'),
+                total_price=Sum('total_price')
+            ).order_by('week')
+
+            labels = [f"Week {m['week']}" for m in sales_data]
+
+        elif timeframe == 'yearly':
+            sales_data = Order.objects.filter(
+                status='Delivered',
+                is_cancelled=False
+            ).annotate(year=ExtractYear('created_at')).values('year').annotate(
+                count=Count('id'),
+                total_price=Sum('total_price')
+            ).order_by('year')
+
+            labels = [str(m['year']) for m in sales_data]
+
+        else:  # Default to monthly
+            sales_data = Order.objects.filter(
+                created_at__year=current_year,
+                status='Delivered',
+                is_cancelled=False
+            ).annotate(month=ExtractMonth('created_at')).values('month').annotate(
+                count=Count('id'),
+                total_price=Sum('total_price')
+            ).order_by('month')
+
+            labels = [calendar.month_abbr[m['month']] for m in sales_data]
+
+        sales_count = [m['count'] for m in sales_data]
+        total_prices = [float(m['total_price']) for m in sales_data]
+
+        #total user------
+        total_users = Customers.objects.count()
+        
+        overall_total_sale_amount = sum(Order.objects.filter(status='Delivered', is_cancelled=False).values_list('total_price', flat=True))
+        
+        overall_total_sales = Order.objects.filter(status='Delivered', is_cancelled=False).count()
+
+        context = {
+            'labels': labels,
+            'sales_count': sales_count,
+            'total_prices': total_prices,
+            'selected_timeframe': timeframe,
+            'products_with_quantities':product_with_quantities,
+            'categories_with_quantities':categories_with_quantities,
+            'total_users': total_users,
+            'overall_total_sale_amount':overall_total_sale_amount,
+            'overall_total_sales':overall_total_sales
+        }
+        
+        return render(request,'admin_dashboard.html',context)
     return redirect('adminn')
 
 
@@ -150,8 +219,13 @@ def UpdateCategory(request,pk):
             fm=UpdateCategoryForm(request.POST,request.FILES,instance=instance)
             
             if fm.is_valid():
-                fm.save()
-                return redirect('category')
+                name = fm.cleaned_data['name']
+                if Category.objects.filter(name=name).exists():
+                    fm.add_error('name', 'A category with the same name already exists.')
+                else:
+                    
+                    fm.save()
+                    return redirect('category')
         else:
             fm=UpdateCategoryForm(instance=instance)
                 
@@ -222,6 +296,7 @@ def product_update(request, pk):
     if 'superuser' in request.session:
         try:
             instance_to_be_edited = Product.objects.get(id=pk)
+            product_image=ProductImage.objects.filter(product=pk)
             if request.method == 'POST':
                 form = ProductUpdateForm(request.POST, request.FILES, instance=instance_to_be_edited)
                 if form.is_valid():
@@ -235,7 +310,7 @@ def product_update(request, pk):
                         form.add_error('quantity', "Quantity cannot be less than 0.")
                     
                     if form.errors:
-                        return render(request, 'admin-product-update.html', {'form': form})
+                        return render(request, 'admin-product-update.html', {'form': form,'product_image':product_image})
                     
                     form.save()
                     print("saved")
@@ -243,11 +318,12 @@ def product_update(request, pk):
             else:
                 form = ProductUpdateForm(instance=instance_to_be_edited)
             
-            return render(request, 'admin-product-update.html', {'form': form})
+            return render(request, 'admin-product-update.html', {'form': form,'product_image':product_image, 'instance': instance_to_be_edited})
         except ValidationError as e:
             error_message = "The Product could not be changed because the data didn't validate."
             form = ProductUpdateForm(instance=instance_to_be_edited)  # Re-instantiate form to display with error
-            return render(request, 'admin-product-update.html', {'form': form, 'error_message': error_message})
+            
+            return render(request, 'admin-product-update.html', {'form': form, 'error_message': error_message, 'instance': instance_to_be_edited})
     return redirect('adminn')
 
 @never_cache
@@ -314,7 +390,19 @@ def uploadImage(request,pk):
                 ProductImage.objects.create(product_id=product_id, image=img)
             return redirect('product_list')
     
-    return render(request,'uploadImage.html')
+        return render(request,'uploadImage.html')
+    return redirect('adminn')
+
+@never_cache
+def deleteproductImage(request,pk):
+    print("inside product aimage")
+    if 'superuser' in request.session:
+        image_to_delete=ProductImage.objects.get(id=pk)
+        product_id =image_to_delete.product.id
+        image_to_delete.delete()
+        
+        return redirect(reverse('product-update',args=[product_id]))
+    return redirect('adminn')
 
 
 
@@ -453,7 +541,7 @@ def adminOrderDetail(request,pk):
 #     return JsonResponse({'success': False, 'error': 'Bad request'})
 
 
-
+#coupon--------------
 
 def coupon(request):
     if 'superuser' in request.session:
@@ -462,7 +550,7 @@ def coupon(request):
         return render(request,'admincoupon.html',{'coupons':coupons})
     return redirect('signin')
     
-    
+@never_cache  
 def addCoupon(request):
     if 'superuser' in request.session:
         if request.POST:
@@ -470,19 +558,32 @@ def addCoupon(request):
             if addCoupon_form.is_valid():
                 couponcode=addCoupon_form.cleaned_data['coupon_code']
                 discount=addCoupon_form.cleaned_data['discount']
+                min_purchase_amount=addCoupon_form.cleaned_data['min_purchase_amount']
+                print(min_purchase_amount)
                 
                 if len(couponcode)<6:               
                     addCoupon_form.add_error('coupon_code','it should be length more than 6')
                 
                 if discount < 1.00:
                     addCoupon_form.add_error('discount','discount should be greater than 0')
+                
+                if min_purchase_amount < 10.00:
+                    addCoupon_form.add_error('min_purchase_amount','amount should be greater than 10')
+                
+                if discount >= min_purchase_amount:
+                    addCoupon_form.add_error('discount','discount amount should be lesser than min purchase amount')
                     
                 if addCoupon_form.errors:
                     return render(request,'addcoupon.html',{'form':addCoupon_form})
+                
                 else:
                     
                     addCoupon_form.save()
                     return redirect('admin-coupon')
+            else:
+                
+                return render(request, 'addcoupon.html', {'form': addCoupon_form})
+            
         form=AddCouponForm()
         return render(request,'addcoupon.html',{'form':form})
     
@@ -493,29 +594,45 @@ def editcoupon(request, pk):
         instance_to_be_edited = Coupon.objects.get(id=pk)
         
         if request.POST:
-            addCoupon_form = EditCouponForm(request.POST)
-            if addCoupon_form.is_valid():
+            editCoupon_form = EditCouponForm(request.POST,instance=instance_to_be_edited)
+            if editCoupon_form.is_valid():
                 
-                couponcode=addCoupon_form.cleaned_data['coupon_code']
-                discount=addCoupon_form.cleaned_data['discount']
-                
+                couponcode=editCoupon_form.cleaned_data['coupon_code']
+                discount=editCoupon_form.cleaned_data['discount']
+                min_purchase_amount=editCoupon_form.cleaned_data['min_purchase_amount']
+
                 if len(couponcode)<6:               
-                    addCoupon_form.add_error('coupon_code','it should be length more than 6')
+                    editCoupon_form.add_error('coupon_code','it should be length more than 6')
                 
                 if discount < 1.00:
-                    addCoupon_form.add_error('discount','discount should be greater than 0')
-                
-                if addCoupon_form.errors:
-                    return render(request,'admin-edit-coupon.html',{'form':addCoupon_form})
+                    editCoupon_form.add_error('discount','discount should be greater than 0')
                     
-                addCoupon_form.save()
+                if min_purchase_amount < 10.00:
+                    editCoupon_form.add_error('min_purchase_amount','amount should be greater than 10')
+                    
+                if discount >= min_purchase_amount:
+                    editCoupon_form.add_error('discount','discount amount should be lesser than min purchase amount')
+                
+                if editCoupon_form.errors:
+                    return render(request,'admin-edit-coupon.html',{'form':editCoupon_form})
+                    
+                editCoupon_form.save()
                 return redirect('admin-coupon')
         
         form = EditCouponForm(instance=instance_to_be_edited)
         return render(request, 'admin-edit-coupon.html', {'form': form})
     return redirect('signin')
 
-# offer-------------------\
+
+def deletecoupon(request,pk):
+    if 'superuser' in request.session:
+        coupon=Coupon.objects.get(id=pk)
+        coupon.delete()
+        return redirect('admin-coupon')
+    return redirect('signin')
+
+
+# offer-------------------
 @never_cache
 def categoryoffers(request):
     if 'superuser' in request.session:
@@ -534,9 +651,19 @@ def add_category_offer(request):
             if form.is_valid():
                 
                 discount_percentage=form.cleaned_data['discount_percentage']
+                start_date=form.cleaned_data['start_date']
+                end_date=form.cleaned_data['end_date']
                 
-                if discount_percentage < 1:
+                
+                
+                if discount_percentage < 1 :
                     form.add_error('discount_percentage','discount percentage should not less than 0')
+                
+                if discount_percentage > 90 :
+                    form.add_error('discount_percentage','discount percentage should not greater than 90%')
+                    
+                if start_date > end_date:
+                    form.add_error('end_date','end date should be greater than start date')
                     
                 if form.errors:
                     return render(request,'add_category_offer.html',{'form':form})
@@ -555,12 +682,22 @@ def editCategoryOffer(request,pk):
             
             if form.is_valid():
                 discount_percentage=form.cleaned_data['discount_percentage']
+                start_date=form.cleaned_data['start_date']
+                end_date=form.cleaned_data['end_date']
                 
                 if discount_percentage < 1:
                     form.add_error('discount_percentage','should greater than 0')
+                    
+                if discount_percentage > 90 :
+                    form.add_error('discount_percentage','discount percentage should not greater than 90%')
+                    
+                if start_date > end_date:
+                    form.add_error('end_date','end date should be greater than start date')
 
                 if form.errors:
                     return render(request,'admin-edit-Categoryofferform.html',{'form':form})
+                
+                
                 form.save()
                 return redirect('category-offers')
                 
@@ -568,9 +705,15 @@ def editCategoryOffer(request,pk):
         return render(request,'admin-edit-Categoryofferform.html',{'form':form})
     return redirect('signin')
 
+def deleteCategoryOffer(request,pk):
+    if 'superuser' in request.session:
+        category_offer=CategoryOffer.objects.get(id=pk)
+        category_offer.delete()
+        return redirect('category-offers')
+    return redirect('signin')
 
-# productoffer----------------
 
+# productoffer---------------
 
 def productoffers(request):
     if 'superuser' in request.session:
@@ -585,9 +728,19 @@ def add_product_offer(request):
             form=ProductOfferForm(request.POST)
             if form.is_valid():
                 discount_price=form.cleaned_data['discount_price']
+                product=form.cleaned_data['product']
+                start_date=form.cleaned_data['start_date']
+                end_date=form.cleaned_data['end_date']
+                
                 
                 if discount_price < 0:
                     form.add_error('discount_price','should greater than 0')
+                
+                if discount_price >= product.price:
+                    form.add_error('discount_price','should not be greater than or equal to product price')
+                
+                if start_date > end_date:
+                    form.add_error('end_date','end date should be greater than start date')
                     
                 if form.errors:
                     return render(request,'admin-add-product-offer.html',{'form':form})
@@ -597,7 +750,7 @@ def add_product_offer(request):
         return render(request,'admin-add-product-offer.html',{'form':form})
     return redirect('signin')
 
-
+@never_cache
 def editProductOffers(request,pk):
     if 'superuser' in request.session:
         instance_to_be_edited=ProductOffer.objects.get(id=pk)
@@ -605,9 +758,15 @@ def editProductOffers(request,pk):
             form=EditProductOffersForm(request.POST,instance=instance_to_be_edited)
             if form.is_valid():
                 discount_price=form.cleaned_data['discount_price']
+                start_date=form.cleaned_data['start_date']
+                end_date=form.cleaned_data['end_date']
+                
                 print("discount",discount_price)
                 if discount_price < 1:
                     form.add_error('discount_price','price should be greater than 0')
+                    
+                if start_date > end_date:
+                    form.add_error('end_date','end date should be greater than start date')
                 
                 if form.errors:
                     return render(request,'admin-EditProductOffers.html',{'form':form})
@@ -618,8 +777,103 @@ def editProductOffers(request,pk):
         return render(request,'admin-EditProductOffers.html',{'form':form})
     return redirect('signin')
 
+@never_cache
+def deleteProductOffer(request,pk):
+    if 'superuser' in request.session:
+        product_offer=ProductOffer.objects.get(id=pk)
+        product_offer.delete()
+        return redirect('product-offers')
+    return redirect('signin')
 
+
+#sales report--------------
+@never_cache
 def salesreport(request):
+    period = request.GET.get('period')  # Get the selected period from the request parameters
+
+    # Default start and end dates for custom date range
+    start_date = end_date = now()
+
+    # Determine start and end dates based on the period
+    if period == 'daily':
+        start_date = now().replace(hour=0, minute=0, second=0, microsecond=0)
+    elif period == 'weekly':
+        start_date = now() - timedelta(days=now().weekday())
+        start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = start_date + timedelta(days=6)
+    elif period == 'monthly':
+        start_date = now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_date = start_date + timedelta(days=31)  # Assuming each month has 31 days
+    elif period == 'custom':
+        # Get start_date and end_date from request parameters
+        start_date_param = request.GET.get('start_date')
+        end_date_param = request.GET.get('end_date')
+
+        # Convert start_date and end_date from string to datetime
+        start_date = datetime.strptime(start_date_param, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = datetime.strptime(end_date_param, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # Filter orders within the specified date range
+    delivered_orders = Order.objects.filter(created_at__range=[start_date, end_date], status='Delivered')
+
+    # Calculate total sales within the time frame for delivered orders only
+    total_sales_delivered = delivered_orders.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+    # Count of delivered orders
+    delivered_orders_count = delivered_orders.count()
+
+    # Calculate total coupon discount for delivered orders that have a coupon applied
+    total_coupon_discount = delivered_orders.filter(coupon__isnull=False).aggregate(total_discount=Sum('coupon__discount'))['total_discount'] or 0
+    
+    total_products_price = sum(
+        sum(order_item.product.price * order_item.quantity for order_item in order.orderitem_set.all())
+        for order in delivered_orders
+    )
+    
+    total_products_price_without_quantity = sum(
+        sum(order_item.price for order_item in order.orderitem_set.all())
+        for order in delivered_orders
+    )
+    
+    overall_product_discount = total_products_price - total_products_price_without_quantity
+    
+    full_discount=overall_product_discount + total_coupon_discount
+    
+    
+    
+    
+    print(overall_product_discount)
+
+    context = {
+        'total_sales_delivered': total_sales_delivered,
+        'delivered_orders_count': delivered_orders_count,
+        'total_coupon_discount': total_coupon_discount,
+        'total_products_price': total_products_price,
+        'total_products_price_without_quantity': total_products_price_without_quantity,
+        'overall_product_discount': overall_product_discount,
+        'full_discount':full_discount,
+        'delivered_orders':delivered_orders,
+    }
+    
+    if request.POST:
+        
+        template = get_template('sales_report_pdf.html')
+        html = template.render(context)
+
+        # Generate PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    
+    
+    return render(request, 'sales_report.html', context)
+
+
+
+def salesreportt(request):
     if 'superuser' in request.session:
         if request.method == 'POST':
             interval = request.POST.get('interval')
@@ -722,6 +976,7 @@ def salesreport(request):
             context = {
                 'products': products,
                 'quantities': quantities,
+                'sales_data':sales_data
             }
                     
             
@@ -768,3 +1023,6 @@ def brand(request):
     return render(request,'admin-brands.html',{'brands':brands})
 
 
+def dashboard(request):
+    print("coming")
+    return render(request,'dashboard.html')

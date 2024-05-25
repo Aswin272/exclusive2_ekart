@@ -1,4 +1,94 @@
-<!DOCTYPE html>
+{% extends "dashboard.html" %}
+
+{% block content %}
+
+
+<div class="card">
+    <div class="card-header pb-0 px-3 d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Coupon Information</h3>
+        <a href="{% url 'add-coupon' %}">
+            <button class="btn btn-primary">Add Coupon</button>
+        </a>
+    </div>
+    <div class="card-body pt-4 p-3">
+      <ul class="list-group">
+        
+        {% for coupon in coupons %}
+        <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
+          <div class="d-flex flex-column">
+            <h3 class="mb-3 text-sm">{{coupon.coupon_code}}</h3>
+            <span class="mb-2 text-xs">Coupon Name: <span class="text-dark font-weight-bold ms-sm-2">{{coupon.coupon_name}}</span></span>
+            <span class="mb-2 text-xs">Coupon Discount: <span class="text-dark ms-sm-2 font-weight-bold">{{coupon.discount}}</span></span>
+            <span class="text-xs">Minumum Purchase Amount: <span class="text-dark ms-sm-2 font-weight-bold">{{coupon.min_purchase_amount}}</span></span>
+          </div>
+          <div class="ms-auto text-end">
+            <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="#" data-toggle="modal" data-target="#deleteModal" data-url="{% url 'delete-coupon' coupon.id %}"><i class="material-icons text-sm me-2">delete</i>Delete</a>
+            <a class="btn btn-link text-dark px-3 mb-0" href="{% url 'edit-coupon' coupon.id %}"><i class="material-icons text-sm me-2">edit</i>Edit</a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this coupon?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteButton" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<script>
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var deleteUrl = button.data('url');
+        var modal = $(this);
+        modal.find('#confirmDeleteButton').attr('href', deleteUrl);
+    });
+</script>
+
+
+
+
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -73,5 +163,5 @@
         {% endfor %}
     </div>
 </body>
-</html>
+</html> {% endcomment %}
 

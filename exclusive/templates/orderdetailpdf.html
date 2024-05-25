@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Example 1</title>
+    
+  </head>
+  <body>
+    <header class="clearfix">
+      
+      <div>
+        <h4>Address</h4>
+      <address>
+        <strong>{{order.user}}</strong><br>
+        street-address: {{order.street_address}} <br>
+        city : {{order.city}} <br>
+        district: {{order.district}} <br>
+        state: {{order.state}} <br>
+        pincode: {{order.pincode}} <br>
+        
+      </address>
+    </div>
+    </header>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th class="service">Product</th>
+            <th class="desc">DESCRIPTION</th>
+            <th>PRICE</th>
+            <th>QTY</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+            {% for order_item in order_items %}
+          <tr>
+            <td class="service">{{order_item.product.name}}</td>
+            <td class="desc">{{order_item.product.description}}</td>
+            <td class="unit">${{order_item.price}}</td>
+            <td class="qty">{{order_item.quantity}}</td>
+            
+          </tr>
+          {% endfor %}
+          
+          
+          
+          <tr>
+            <td colspan="4" class="grand total">GRAND TOTAL</td>
+            <td class="grand total">${{total_order_price}}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+    </main>
+    <footer>
+      Invoice was created on a computer and is valid without the signature and seal.
+    </footer>
+  </body>
+</html>

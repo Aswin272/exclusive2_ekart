@@ -203,4 +203,5 @@ def signin(request):
 
 
 def blocked(request):
+    print("blockedd")
     return render(request,'signin.html')

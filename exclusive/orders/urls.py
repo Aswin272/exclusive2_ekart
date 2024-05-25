@@ -16,5 +16,8 @@ urlpatterns = [
     path('payment-homepage',views.paymenthomepage,name="payment-homepage"),
     path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
     
-    path('return-request/<pk>',views.returnrequest,name="return-request")
+    path('return-request/<pk>',views.returnrequest,name="return-request"),
+    
+    #pdff---
+    path('order_detail_pdf/<pk>',views.download_order_detail_pdf,name="download_order_detail_pdf")
 ]

@@ -1,3 +1,81 @@
+{% extends "dashboard.html" %}
+
+
+{% block content %}
+
+
+<script>
+    function toggleCustomDate() {
+        var customDateSelect = document.getElementById("interval");
+        var startDateInput = document.getElementById("start_date");
+        var endDateInput = document.getElementById("end_date");
+
+        if (customDateSelect.value === "custom") {
+            startDateInput.style.display = "inline-block";  // Show the start date input
+            endDateInput.style.display = "inline-block";    // Show the end date input
+        } else {
+            startDateInput.style.display = "none";           // Hide the start date input
+            endDateInput.style.display = "none";             // Hide the end date input
+        }
+    }
+</script>
+
+
+
+<div class="container-fluid">
+<h1>Sales Report</h1>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <label for="interval">Select Interval:</label>
+        <select name="interval" id="interval" onchange="toggleCustomDate()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="yearly">Yearly</option>
+            <option value="custom">Custom Date</option>
+        </select>
+        <input type="date" name="start_date" id="start_date" style="display: none;">
+        <input type="date" name="end_date" id="end_date" style="display: none;">
+        <input type="submit" value="Generate Report">
+    </form>
+
+
+
+
+    <table style="border-collapse:collapse; width:100% ">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Order ID</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Total Price</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Product Name</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in products %}
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;" rowspan="">{{order}}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;" rowspan="">hhh</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"></td>
+                <td style="border: 1px solid #ddd; padding: 8px;"></td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+
+</div>
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
 {% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
