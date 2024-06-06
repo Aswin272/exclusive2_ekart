@@ -19,6 +19,8 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from authentication import views
 from django.conf import settings
+from django.conf.urls import handler404
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,8 +30,10 @@ urlpatterns = [
     path('',include('products.urls')),
     path('',include('orders.urls')),
     path('accounts/', include('allauth.urls')),
-    
-    
+
 ]
+
+handler404 = 'orders.views.custom_404_view'
+
 
 urlpatterns +=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

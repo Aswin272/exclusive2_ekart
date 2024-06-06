@@ -659,7 +659,8 @@ product-detail  */
 
 
 .userprofile-leftside{
-  display: inline-block;
+  
+  width: 200px;
 }
 
 .userprofile-rightside{
@@ -680,7 +681,9 @@ product-detail  */
   list-style-type: none;
   padding: 0;
   display: inline-block;
-  background-color: rgb(119, 116, 116);
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
 }
 
@@ -692,11 +695,14 @@ product-detail  */
   display: block;
   padding: 10px;
   text-decoration: none;
-  color: #000; /* Adjust link color as needed */
+  color: black; /* Adjust link color as needed */
 }
 
 .UserMenu li a:hover {
-  background-color: #eee; /* Adjust hover background color as needed */
+  background-color:rgb(219, 68, 68); /* Adjust hover background color as needed */
+}
+.UserMenu li a :active{
+  background-color: rgb(219, 68, 68);
 }
 
 
@@ -785,42 +791,6 @@ th:last-child{
 
 /* address */
 
-
-.address-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 4px 4px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
-  display: inline-block;
-  margin-left: 50px;
-}
-.address-card h2 {
-  color: #333;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-.address-card p {
-  color: #666;
-  font-size: 16px;
-  margin-bottom: 5px;
-  
-}
-.address-card .address-line {
-  margin-bottom: 10px;
-}
-.address-card .edit-button {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.address-card .edit-button:hover {
-  background-color: #0056b3;
-}
 
 /* user dashboard */
 
@@ -1147,45 +1117,172 @@ th:last-child{
 /* order.html --------------------*/
 
 
+
+
+/* General container styling */
+/* General container styling */
 .orders-container {
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
 }
+
+/* Individual order styling */
 .orders-order {
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid #ccc; /* Border color */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  transition: all 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
+
 .orders-order:hover {
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-10px);
 }
+
+/* Order details styling */
 .orders-order-details {
   flex: 1;
+  padding-right: 20px;
 }
-.orders-order-id {
+
+.orders-order-id, .orders-order-total {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.orders-order-date {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.orders-order-status {
+  text-transform: capitalize;
+  font-weight: bold;
+  color: #388e3c;
+  margin-bottom: 5px;
+}
+
+.orders-order-total {
   font-size: 18px;
   font-weight: bold;
   color: #333;
 }
-.orders-order-date {
-  color: #666;
+
+/* Button styling */
+.orders-button {
+  background-color: #00796b;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 14px;
 }
-.orders-order-status {
-  text-transform: capitalize;
-  font-weight: bold;
-  color: #1e90ff;
+
+.orders-button:hover {
+  background-color: #004d40;
+  transform: translateY(-2px);
 }
-.orders-order-total {
-  font-size: 16px;
+
+.orders-button:focus {
+  outline: none;
+}
+
+.orders-order-canceled {
+  color: red;
   font-weight: bold;
+}
+
+/* Styling for the heading */
+.orders-container h1 {
+  text-align: center;
+  font-size: 28px;
   color: #333;
+  margin-bottom: 30px;
+}
+
+/* Styling for the no orders message */
+.orders-container p {
+  text-align: center;
+  color: #777;
+  font-size: 16px;
+}
+
+
+
+/* address--------------- */
+/* User Address Container */
+.user-address-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 40px; /* Adjust padding for more space from left and right */
+}
+
+/* Heading Style */
+.user-address-container h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Address Card Style */
+.address-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Address Line Style */
+.address-line {
+  margin-bottom: 10px;
+}
+
+.address-line p {
+  margin: 5px 0;
+}
+
+.address-line strong {
+  font-weight: bold;
+}
+
+/* Button Style */
+.address-btn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Primary Button Style */
+.address-btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Danger Button Style */
+.address-btn-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* Hover Effect for Buttons */
+.address-btn-primary:hover,
+.address-btn-danger:hover {
+  opacity: 0.8;
 }

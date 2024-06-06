@@ -30,7 +30,7 @@
     </div>
     <nav class="nav">
       <div class="container nav_container">
-        <a href="#" class="nav_logo">EXCLUSIVE</a>
+        <a href="#" class="nav_logo">XCLUSIV</a>
         <ul class="nav_list">
           <li class="nav_item"><a href="/" class="nav_link">Home</a></li>
           <li class="nav_item"><a href="#" class="nav_link">About</a></li>
@@ -46,11 +46,13 @@
           </li>
         </ul>
         <div class="nav_items">
-          <form action="{% url 'search' %}" method="get"  class="nav_form">
+          <form action="{% url 'search' %}"  class="nav_form">
+            
+           
             <input
               type="text" 
-              class="nav_input" name="query"
-              placeholder="search here...." />
+              class="nav_input" name="search_query" 
+              placeholder="search here...."  />
               <button type="submit">
             <img src="{% static "image//search.png" %}" alt="" class="nav_search" /></button>
           </form>
@@ -100,11 +102,26 @@
           <a href="#" class="mobile_nav_link">Contact</a>
         </li>
         <li class="mobile_nav_item">
-          <a href="{% url 'signup' %}" class="mobile_nav_link">Sign Up</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}" class="mobile_nav_link">logout</a>
+          {% else %}
+          <a href="{% url 'signin' %}" class="mobile_nav_link">Sign Up</a>
+          {% endif %}
+
+
         </li>
-        <li class="mobile_nav_item">
-          <a href="/cart.html" class="mobile_nav_link">Cart</a>
+        <li>
+          {% if user.is_authenticated %}
+          <a href="{% url 'userProfile' user.id %}">
+            <img src="{% static "image//profile3.png" %}" alt="" class="mobile_nav_link">
+          </a>
+          {% else %}
+          <a href="{% url 'signin' %}">
+            <img src="{% static "image//profile3.png" %}" alt="" class="mobile_nav_link">
+          </a>
+          {% endif %}
         </li>
+        
       </ul>
     </nav>
 

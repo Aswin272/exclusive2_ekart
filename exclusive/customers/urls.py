@@ -28,5 +28,9 @@ urlpatterns = [
     
     path('wishlist/',views.wishlist,name="wishlist"),
     path('add-wishlist/<pk>',views.addwishlist,name="add-wishlist"),
-    path('remove-wishlist/<pk>',views.removewishlist,name="remove-wishlist")
+    path('remove-wishlist/<pk>',views.removewishlist,name="remove-wishlist"),
+    
+    
+    #wallet transaction
+    path('wallet-transaction/<pk>',views.walletTransaction,name="wallet-transaction")
 ]

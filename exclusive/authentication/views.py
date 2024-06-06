@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from customers . models import Customers,Wallet
+from customers . models import Customers,Wallet,Transaction
 from django.db.models import Q
 from django.contrib.auth.password_validation import validate_password
 import random
@@ -40,7 +40,7 @@ def otp_verification(request):
             raw_password=request.session.get('password')
             hashed_password=make_password(raw_password)
             
-            user=Customers.objects.create(username=username,email=email,password=hashed_password)
+            user=Customers.objects.create(username=username,email=email,password=hashed_password,referrel_code=username)
             wallet=Wallet.objects.create(user=user)
             
             if referrel_code:
@@ -52,6 +52,14 @@ def otp_verification(request):
                     referred_by_wallet=Wallet.objects.get(user=referred_by)
                     referred_by_wallet.balance += 100
                     referred_by_wallet.save()
+                    
+                    
+                    # for referred by customer
+                    Transaction.objects.create(wallet=referred_by_wallet,amount=100)
+                    
+                    #for newly created customer
+                    Transaction.objects.create(wallet=wallet,amount=100)
+                    
                 except Customers.DoesNotExist:
                     pass
             

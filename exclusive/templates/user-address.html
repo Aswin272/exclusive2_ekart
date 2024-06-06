@@ -1,10 +1,10 @@
-{% extends "header.html" %}
-
-{% block content %}
+{% extends "userProfile.html" %}
 
 
-<h1>address </h1>
-<a href="{% url 'add-address'%}?return_url=user-address"><button class="btn btn-primary">Add Address</button></a>
+
+
+
+{% comment %} <a href="{% url 'add-address'%}?return_url=user-address"><button class="btn btn-primary">Add Address</button></a> {% endcomment %}
 
 
 {% comment %} <div class="address-div">
@@ -17,8 +17,14 @@
     {% endfor %}
 </div> {% endcomment %}
 
-<div class="container">
+
+{% block innercontent %}
+
+<div class="container" >
+    
     <h1>User Address</h1>
+    <a href="{% url 'add-address'%}?return_url=user-address"><button class="btn btn-primary m-5">Add Address</button></a>
+
     {% for address in address %}
 <div class="address-card">
     
@@ -39,4 +45,5 @@
 {% endfor %}
 </div>
 
-{% endblock content %}
+
+{% endblock innercontent %}

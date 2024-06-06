@@ -14,7 +14,7 @@
             <thead>
                 <tr>
                     <th>Product Name</th>
-                    <th class="text-center"><a class="btn btn-sm btn-outline-danger" href="#">Clear Wishlist</a></th>
+                    <th class="text-center"><a class="btn btn-sm btn-outline-danger" href="#">Action</a></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,12 +33,18 @@
                                     {% else %}
                                     <div class="d-inline text-danger">Not in Stock</div>
                                     {% endif %}
+                                    
                                 </div>
                             </div>
                         </div>
                     </td>
                     
-                    <td class="text-center"><a class="remove-from-cart" href="{% url 'remove-wishlist' item.Product.id %}" data-toggle="tooltip" title="" data-original-title="Remove item"> Remove<i class="icon-cross"></i></a></td>
+                    <td class="text-center"><a class="remove-from-cart" href="{% url 'remove-wishlist' item.Product.id %}" data-toggle="tooltip" title="" data-original-title="Remove item"> Remove<i class="icon-cross"></i></a>
+
+                    <div>
+                        <a href="{% url 'add_to_cart' item.id %}"><button type = "button" class = "add-cart-btn"><i class = "fas fa-shopping-cart"></i>add to cart</button></a>
+                    </div>
+                </td>
                 </tr>
                 {% endfor %}
             </tbody>

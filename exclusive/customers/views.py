@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404,HttpResponse,HttpResponseRedirect
-from . models import Customers,Address,Cart,CartItem,Productreview,Wishlist,WishlistItems,Wallet
+from . models import Customers,Address,Cart,CartItem,Productreview,Wishlist,WishlistItems,Wallet,Transaction
 from django.views.decorators.cache import never_cache
 from .forms import AddAddressForm,EditAddressForm
 from products.models import Product,Category,CategoryOffer,ProductOffer
@@ -33,7 +33,7 @@ def userProfile(request,pk):
         return render(request, 'userProfile.html', {'username': user,'wallet':wallet})
     
     except ObjectDoesNotExist:
-        return redirect('signin')
+        return render(request,'404.html')
     
 @never_cache
 def useraddress(request):
@@ -57,6 +57,7 @@ def contains_special_characters(value):
     # Regular expression pattern to match special characters
     pattern = r'[!@#$%^&*()_+}{":;\'?/\[\]|,.<>~`]'
     return re.search(pattern, value)
+
 
 
 
@@ -196,7 +197,7 @@ def deleteaddress(request,pk):
     return redirect('signin')
     
 # cart--------
-
+@never_cache
 def add_to_cart(request,pk):
     if 'username' in request.session:
         try:
@@ -239,6 +240,8 @@ def add_to_cart(request,pk):
             return redirect ('signin')
     return redirect('signin')
 
+
+@never_cache
 def cart(request):
     print("haiiii")
     if 'username' in request.session:
@@ -298,7 +301,7 @@ def cart(request):
     return redirect('signin')
 
 
-
+@never_cache
 def cartitemremove(request,pk):
     if 'username' in request.session:
        
@@ -623,7 +626,7 @@ def productreview(request,pk):
         except Product.DoesNotExist:
             print("error")
             # Handle the case where the product does not exist
-            return redirect('home')
+            return render(request,'404.html')
         
         existing_review=Productreview.objects.filter(customer=user,product=product).exists()
         if request.method=='POST':
@@ -704,5 +707,15 @@ def removewishlist(request,pk):
     wishlist_item.delete()
     return redirect('wishlist')
 
+@login_required
+def walletTransaction(request,pk):
+    try:
+        wallet=Wallet.objects.get(user=pk)
+    except:
+        return render(request,'404.html')
+    print("wlllett",wallet)
     
+    transaction=Transaction.objects.filter(wallet=wallet)
     
+    return render(request,"walletTransaction.html",{'transaction':transaction})
+     

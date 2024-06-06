@@ -10,5 +10,5 @@ urlpatterns = [
     path('all-product',views.all_products_list,name="all-product-list"),
     path('sort/',views.sort,name='sort'),
    
-   path('search/',views.search,name="search")
+    path('search/',views.search,name="search")
 ]

@@ -5,43 +5,57 @@
 
 
 {% block content %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-    <li class="breadcrumb-item active" aria-current="page">All Products</li>
-  </ol>
-</nav>
 
-<form method="POST" action="{% url 'sort' %}">
-  
-  <div class="product-select-box container mb-5">
-      <div style="" class="product-short">
-          <p>Sort By:</p>
-          {% csrf_token %}
-          <select class="nice-select" name="sort_by">
-            
-              <option value="">Default</option>
-              <option value="priceHigh">Price (Low &gt; High)</option>
-              <option value="priceLow">Price (High &gt; Low)</option>
-              <option value="nameAsce">Name (A - Z)</option>
-              <option value="nameDesc">Name (A - Z)</option>
-              <option value="newArrivals ">Release Date</option> <!-- corrected spelling -->
-          </select>
-          <button type="submit">Sort</button>
+
+
+<div class="container mt-5 mb-5" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #f8f9fa; border-radius: 4px; ">
+  <!-- Sort Form on the Left Side -->
+  <form method="POST" action="" style="display: flex; align-items: center;">
+    <input type="hidden" name="sort_filter_form" value="1">
+    <div class="product-short mr-5" style="display: flex; align-items: center; gap: 10px;">
+      <p style="margin: 0; font-weight: bold; color: #333;">Sort By:</p>
+      {% csrf_token %}
+      <select class="nice-select" name="sort_by" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; font-size: 14px;">
+        <option value="" {% if current_sort == "" %}selected{% endif %}>Default</option>
+        <option value="priceHigh" {% if current_sort == "priceHigh" %}selected{% endif %}>Price (Low &gt; High)</option>
+        <option value="priceLow" {% if current_sort == "priceLow" %}selected{% endif %}>Price (High &gt; Low)</option>
+        <option value="nameAsce" {% if current_sort == "nameAsce" %}selected{% endif %}>Name (A - Z)</option>
+        <option value="nameDesc" {% if current_sort == "nameDesc" %}selected{% endif %}>Name (Z - A)</option>
+        <option value="newArrivals" {% if current_sort == "newArrivals" %}selected{% endif %}>Release Date</option>
+      </select>
+    </div>
+
+      <div class="product-filter" style="display: flex; align-items: center; gap: 10px;">
+        <p style="margin: 0; font-weight: bold; color: #333;">Filter By:</p>
+        <select class="nice-select" name="filter_by" style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff; font-size: 14px;">
+          <option value="" {% if current_filter == "" %}selected{% endif %}>All Categories</option>
+          {% for category in categories %}
+          <option value="{{ category.name }}" {% if current_filter == category.name %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+        </select>
       </div>
-  </div>
-</form>
+
+      <button type="submit" style="padding: 5px 15px; border: none; border-radius: 4px; background-color: #007bff; color: #fff; font-size: 14px; cursor: pointer;">Sort</button>
+    
+
+
+  </form>
+
+  <!-- Breadcrumb Navigation on the Right Side -->
+  <nav aria-label="breadcrumb" style="margin-left: auto;">
+    <ol class="breadcrumb" style="display: flex; list-style: none; padding: 0; margin: 0; background-color: transparent;">
+      <li class="breadcrumb-item" style="margin-right: 5px;">
+        <a href="/" style="text-decoration: none; color: #007bff;">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page" style="color: #6c757d;">All Products</li>
+    </ol>
+  </nav>
+</div>
+
 
 <div class="container">
 
-  <form method="POST"  class="all-products-search">
-    <input
-      type="text"
-      class="nav_input"
-      placeholder="search here...." name="search" />
-
-    <a href=""><img src="{% static "image//search.png" %}" alt="" class="nav_search" /></a>
-  </form>
+  
 
 </div>
 

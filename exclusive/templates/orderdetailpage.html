@@ -49,6 +49,12 @@
                           <h6 class="small mb-0"><a href="#" class="text-reset-order-detail">{{order_item.product.description}}</a></h6>
                           {% comment %} <span class="small">Color: White</span> {% endcomment %}
                         </div>
+                        <div class="pl-5">
+                          {% if order.status == 'Delivered' %}
+                            <a href="{% url 'product-review' order_item.product.id%}" class="m-3 btn-info">Add Review</a>
+
+                          {% endif %}
+                        </div>
                       </div>
                     </td>
                     <td>{{order_item.quantity}}</td>
@@ -140,9 +146,12 @@
             {% if order.is_cancelled or order.status == "Cancelled" %}
             <p>Order Cancelled</p>
             {% elif order.status == "Delivered" %}
-            <a href="{% url 'return-request' order.id %}">return</a>
+            {% comment %} <a href="#" data-toggle="modal" data-target="#returnOrderModal" data-url="{% url 'return-request' order.id %}">Return</a> {% endcomment %}
+            {% comment %} <a href="{% url 'return-request' order.id %}">return</a> {% endcomment %}
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#returnOrderModal">Return Order</button>
             {% else %}
-            <a href="{% url 'order-cancel' order.id %}"><button>Cancel order</button></a> 
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#cancelOrderModal">cancel order </button>
+            {% comment %} <a href="{% url 'order-cancel' order.id %}"><button>Cancel order</button></a>  {% endcomment %}
             {% endif %}
             {% endif %}
           </div>
@@ -153,6 +162,59 @@
       </div>
 
 
+      <!-- Return Order Modal -->
+<div class="modal fade" id="returnOrderModal" tabindex="-1" aria-labelledby="returnOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="returnOrderModalLabel">Confirm Order Return</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to return this order?
+      </div>
+      <div class="modal-footer">
+        <form method="POST" action="{% url 'return-request' order.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Confirm Return</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cancelOrderModalLabel">Confirm Order Cancellation</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to cancel this order?
+            </div>
+            <div class="modal-footer">
+              <form method="POST" action="{% url 'order-cancel' order.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Confirm</button>
+              </form>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock content %}
 
 

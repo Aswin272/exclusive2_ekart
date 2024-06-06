@@ -4,7 +4,7 @@
 
 
 
-<div class="container">
+{% comment %} <div class="container">
         <h2>OTP Verification</h2>
         {% if error_message %}
             <p>{{ error_message }}</p>
@@ -17,13 +17,40 @@
             <button type="submit">Submit</button>
         </form>
         <!-- Timer for OTP expiration -->
-        <div id="timer"></div>
+        <div> <p>only have 30 seconds</p></div>
         <!-- Resend OTP button -->
         <form action="{% url 'resend_otp' %}" method="post">
             {% csrf_token %}
             <button type="submit">Resend OTP</button>
         </form>
+    </div> {% endcomment %}
+
+
+    <div class="container mt-5" style="max-width: 400px; margin: 0 auto; text-align: center; background-color: #f9f9f9; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="margin-bottom: 20px; color: #333;">OTP Verification</h2>
+        {% if error_message %}
+            <p style="color: red; margin-bottom: 20px;">{{ error_message }}</p>
+        {% endif %}
+        <form action="" method="POST" style="margin-bottom: 20px;">
+            {% csrf_token %}
+            <!-- Display OTP input fields -->
+            <input type="text" name="otp" required style="padding: 10px; width: 100%; box-sizing: border-box; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;">Submit</button>
+        </form>
+        <!-- Timer for OTP expiration -->
+        <div style="margin-bottom: 20px;"><p style="font-weight: bold; color: #666;">Only have 30 seconds</p></div>
+        <!-- Resend OTP button -->
+        <form action="{% url 'resend_otp' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" style="padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;">Resend OTP</button>
+        </form>
     </div>
+    
+    
+
+
+
+
 
     <script>
         // Set the timer duration in seconds

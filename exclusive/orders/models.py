@@ -22,6 +22,11 @@ class Order(models.Model):
         ('Returned', 'Returned'),
         ('Rejected', 'Rejected')
     )
+    PAYMENT_STATUS_CHOICES=(
+        ('Pending','Pending'),
+        ('Paid','Paid')
+        
+    )
     
     user=models.ForeignKey(Customers,on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
@@ -33,6 +38,7 @@ class Order(models.Model):
     state = models.CharField(max_length=100)
     pincode = models.CharField(max_length=20)
     payment = models.CharField(max_length=100)
+    payment_status=models.CharField(max_length=100,choices=PAYMENT_STATUS_CHOICES,default="Pending")
     coupon=models.ForeignKey(Coupon,on_delete=models.SET_NULL,null=True,blank=True)
     is_return=models.BooleanField(default=False)
     return_status=models.CharField(max_length=100,choices=RETURN_STATUS_CHOICES,default='Return Requested')

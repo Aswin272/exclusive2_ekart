@@ -84,15 +84,15 @@
 
 
     <h1>Sales Report</h1>
-    <p>Total Delivered Orders: {{ delivered_orders_count }}</p>
-    <p>total_products_price{{total_products_price}}</p>
-    <p>total_products_price_without_quantity{{total_products_price_without_quantity}}</p>
+    <p>Total Delivered Orders : {{ delivered_orders_count }}</p>
+    <p>total_products_price before any offers : {{total_products_price}}</p>
+    <p>total_products_price_after _discount : {{total_products_price_without_quantity}}</p>
 
 
-    <p>Total Sales (Delivered Orders): ${{ total_sales_delivered }}</p>
+    <p>total_products_price_after_coupon_discount: {{ total_sales_delivered }}</p>
     <p>full_discount {{full_discount}}</p>
-    <p>Total Coupon Discount: ${{ total_coupon_discount }}</p>
-    <p>overall_product_discount{{overall_product_discount}}</p>
+    <p>Total Coupon Discount: {{ total_coupon_discount }}</p>
+    <p>overall_product_discount : {{overall_product_discount}}</p>
 
 
 

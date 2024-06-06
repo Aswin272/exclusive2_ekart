@@ -1,7 +1,7 @@
-{% extends "header.html" %}
+{% extends "userProfile.html" %}
 
 
-{% block content %}
+{% block innercontent %}
 
 
 <div class="container">
@@ -16,16 +16,19 @@
             <!-- Add more user details as needed -->
         </div>
         <a href="{% url 'user-editprofile' %}"><button class="btn btn-primary">edit </button></a>
+    
+        <div class="mt-5">
+            <label for="">For change password</label>
+            <a href="{% url 'change-password' %}"><button class="btn btn-primary" >change password</button></a>
+        </div>
+    
     </div>
 
     <div>
        
     </div>
-    <div class="mt-5">
-        <label for="">For change password</label>
-        <a href="{% url 'change-password' %}"><button class="btn btn-primary" >change password</button></a>
-    </div>
+    
 
 
 </div>
-{% endblock content %}
+{% endblock innercontent %}

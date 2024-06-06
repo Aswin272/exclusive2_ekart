@@ -1,4 +1,4 @@
-{% extends "header.html" %}
+{% extends "userProfile.html" %}
 
 {% comment %} {% extends "header.html" %}
 
@@ -72,40 +72,46 @@
 
 
 
-{% block content %}
+{% block innercontent %}
 <!-- orders.html -->
 <!-- orders.html -->
 <!-- orders.html -->
 
-    <div class="orders-container">
-        <h1>Your Orders</h1>
-        {% if orders %}
-            {% for order in orders %}
-            <a href="{% url 'order-detail' order.id %}">
-                <div class="orders-order">
-                    <div class="orders-order-details">
-                        <div class="orders-order-id">Order ID: {{ order.id }}</div>
-                        <div class="orders-order-date">Date: {{ order.created_at }}</div>
+<div class="container" style="margin-left: 20px;">
+  <h1>Your Orders</h1>
+  {% if orders %}
+      {% for order in orders %}
+      <a href="{% url 'order-detail' order.id %}" style="text-decoration: none; color: inherit;">
+          <div class="orders-order">
+              <div class="orders-order-details">
+                  <div class="orders-order-id">Order ID: {{ order.id }}</div>
+                  <div class="orders-order-date">Date: {{ order.created_at }}</div>
 
-                      {% if order.is_return %}
-                      <p>{{order.return_status}}</p>
+                  {% if order.is_return %}
+                  <p>{{order.return_status}}</p>
+                  {% else %}
+                      {% if order.is_cancelled or order.status == "Cancelled" %}
+                      <p class="orders-order-canceled">Order cancelled</p>
                       {% else %}
-                        {% if order.is_cancelled or order.status == "Cancelled" %}
-                        <p style="color:red">Order cancelled</p>
-                      
+                      <div class="orders-order-status">Status: {{ order.status }}</div>
+                      {% endif %}
+                  {% endif %}
+              </div>
+              <div class="orders-order-total">${{ order.total_price }}</div>
+              {% if order.payment_status == 'Pending' %}
+              <form action="{% url 'retrypayment' %}" method="POST" style="margin-left: 20px;">
+                  {% csrf_token %}
+                  <input type="hidden" name="order_id" value="{{ order.id }}">
+                  <button type="submit" class="orders-button">Pay Now</button>
+              </form>
+              {% endif %}
+          </div>
+      </a>
+      {% endfor %}
+  {% else %}
+      <p>No orders found.</p>
+  {% endif %}
+</div>
 
-                        {% else %}
-                        <div class="orders-order-status">Status: {{ order.status }}</div>
-                        {% endif %}
-                        {% endif %}
-                    </div>
-                    <div class="orders-order-total">${{ order.total_price }}</div>
-                </div>
-              </a>
-            {% endfor %}
-        {% else %}
-            <p>No orders found.</p>
-        {% endif %}
-    </div>
 
-    {% endblock content %}
+    {% endblock innercontent %}

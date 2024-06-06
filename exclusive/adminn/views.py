@@ -17,7 +17,7 @@ from django.http import HttpResponse
 
 from django.template.loader import get_template
 from xhtml2pdf import pisa
-from django.db.models import Sum
+from django.db.models import Sum,Q
 
 from .models import Coupon
 from django.db.models import Count
@@ -248,9 +248,13 @@ def active_unactive_category(request,pk):
 
 @never_cache
 def product_list(request):
+    print("product list")
     if 'superuser' in request.session:
+        print("inside product list")
         products=Product.objects.all().order_by('id')
+        print("all correct")
         return render(request,'admin_product_list.html',{'products':products})
+    print("messed up")
     return redirect('adminn')
 
 
@@ -289,6 +293,7 @@ def add_products(request):
         
         return render(request, 'admin_add_product.html', {'frm': product_form})
     return redirect('adminn')
+
 
 
 @never_cache
@@ -376,7 +381,7 @@ def logout(request):
         return redirect('adminn')
     
     
-    
+@never_cache   
 def uploadImage(request,pk):
     if 'superuser' in request.session:
         product=Product.objects.get(id=pk)
@@ -405,7 +410,7 @@ def deleteproductImage(request,pk):
     return redirect('adminn')
 
 
-
+@never_cache
 def adminorders(request):
     print("yesss")
     if 'superuser' in request.session:
@@ -432,6 +437,10 @@ def adminorders(request):
                         order.coupon=None
                     order.save()
                     
+                if new_status == 'Delivered':
+                    order.payment_status='Paid'
+                    order.save()
+                    
                 if new_status =="Cancelled":
                     print("order cancelled")
                     order_items=OrderItem.objects.filter(order=order)
@@ -451,7 +460,7 @@ def adminorders(request):
     return redirect('signin')
 
 
-
+@never_cache
 def adminOrderDetail(request,pk):
     if 'superuser' in request.session:
         
@@ -542,7 +551,7 @@ def adminOrderDetail(request,pk):
 
 
 #coupon--------------
-
+@never_cache
 def coupon(request):
     if 'superuser' in request.session:
         coupons=Coupon.objects.all()
@@ -573,6 +582,10 @@ def addCoupon(request):
                 if discount >= min_purchase_amount:
                     addCoupon_form.add_error('discount','discount amount should be lesser than min purchase amount')
                     
+                if Coupon.objects.filter(coupon_code=couponcode).exists():
+                    print("coupon exists")
+                    addCoupon_form.add_error('coupon_code','this coupon code already exists')
+                    
                 if addCoupon_form.errors:
                     return render(request,'addcoupon.html',{'form':addCoupon_form})
                 
@@ -589,6 +602,7 @@ def addCoupon(request):
     
     return redirect('signin')
 
+@never_cache
 def editcoupon(request, pk):
     if 'superuser' in request.session:
         instance_to_be_edited = Coupon.objects.get(id=pk)
@@ -612,6 +626,10 @@ def editcoupon(request, pk):
                     
                 if discount >= min_purchase_amount:
                     editCoupon_form.add_error('discount','discount amount should be lesser than min purchase amount')
+                    
+                if Coupon.objects.filter(coupon_code=couponcode).exists():
+                    print("coupon exists")
+                    editCoupon_form.add_error('coupon_code','this coupon code already exists')
                 
                 if editCoupon_form.errors:
                     return render(request,'admin-edit-coupon.html',{'form':editCoupon_form})
@@ -623,7 +641,7 @@ def editcoupon(request, pk):
         return render(request, 'admin-edit-coupon.html', {'form': form})
     return redirect('signin')
 
-
+@never_cache
 def deletecoupon(request,pk):
     if 'superuser' in request.session:
         coupon=Coupon.objects.get(id=pk)
@@ -643,7 +661,7 @@ def categoryoffers(request):
 
 
 
-  
+@never_cache  
 def add_category_offer(request):
     if 'superuser' in request.session:
         if request.method=='POST':
@@ -653,6 +671,7 @@ def add_category_offer(request):
                 discount_percentage=form.cleaned_data['discount_percentage']
                 start_date=form.cleaned_data['start_date']
                 end_date=form.cleaned_data['end_date']
+                category=form.cleaned_data['category']
                 
                 
                 
@@ -664,16 +683,22 @@ def add_category_offer(request):
                     
                 if start_date > end_date:
                     form.add_error('end_date','end date should be greater than start date')
+                
+                if CategoryOffer.objects.filter(category=category).exists():
+                    form.add_error('category','offer for this category already exist')
                     
                 if form.errors:
                     return render(request,'add_category_offer.html',{'form':form})
                 form.save()
                 return redirect('category-offers')
-        form=CategoryOfferForm()
+        
+        else:
+                
+            form=CategoryOfferForm()
         return render(request,'add_category_offer.html',{'form':form})
     return redirect('signin')
 
-
+@never_cache
 def editCategoryOffer(request,pk):
     if 'superuser' in request.session:
         instance_to_be_edited=CategoryOffer.objects.get(id=pk)
@@ -684,6 +709,7 @@ def editCategoryOffer(request,pk):
                 discount_percentage=form.cleaned_data['discount_percentage']
                 start_date=form.cleaned_data['start_date']
                 end_date=form.cleaned_data['end_date']
+                category=form.cleaned_data['category']
                 
                 if discount_percentage < 1:
                     form.add_error('discount_percentage','should greater than 0')
@@ -693,6 +719,9 @@ def editCategoryOffer(request,pk):
                     
                 if start_date > end_date:
                     form.add_error('end_date','end date should be greater than start date')
+                    
+                if CategoryOffer.objects.filter(category=category).exists():
+                    form.add_error('category','offer for this category already exist')
 
                 if form.errors:
                     return render(request,'admin-edit-Categoryofferform.html',{'form':form})
@@ -700,11 +729,13 @@ def editCategoryOffer(request,pk):
                 
                 form.save()
                 return redirect('category-offers')
-                
-        form=EditCategoryOfferForm(instance=instance_to_be_edited)
+        else:
+                    
+            form=EditCategoryOfferForm(instance=instance_to_be_edited)
         return render(request,'admin-edit-Categoryofferform.html',{'form':form})
     return redirect('signin')
 
+@never_cache
 def deleteCategoryOffer(request,pk):
     if 'superuser' in request.session:
         category_offer=CategoryOffer.objects.get(id=pk)
@@ -714,13 +745,14 @@ def deleteCategoryOffer(request,pk):
 
 
 # productoffer---------------
-
+@never_cache
 def productoffers(request):
     if 'superuser' in request.session:
         productoffers=ProductOffer.objects.all()
         
         return render(request,'admin-productoffers.html',{'productoffers':productoffers})
     return redirect('signin')
+
 @never_cache
 def add_product_offer(request):
     if 'superuser' in request.session:
@@ -789,7 +821,7 @@ def deleteProductOffer(request,pk):
 #sales report--------------
 @never_cache
 def salesreport(request):
-    period = request.GET.get('period')  # Get the selected period from the request parameters
+    period = request.GET.get('period','weekly')  # Get the selected period from the request parameters
 
     # Default start and end dates for custom date range
     start_date = end_date = now()
@@ -813,8 +845,13 @@ def salesreport(request):
         start_date = datetime.strptime(start_date_param, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = datetime.strptime(end_date_param, '%Y-%m-%d').replace(hour=23, minute=59, second=59, microsecond=999999)
 
+
+    print(f"Period: {period}")
+    print(f"Start date: {start_date}")
+    print(f"End date: {end_date}")
+    
     # Filter orders within the specified date range
-    delivered_orders = Order.objects.filter(created_at__range=[start_date, end_date], status='Delivered')
+    delivered_orders = Order.objects.filter(created_at__range=[start_date, end_date], status='Delivered').filter(Q(is_return=False) | Q(return_status='Rejected'))
 
     # Calculate total sales within the time frame for delivered orders only
     total_sales_delivered = delivered_orders.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0

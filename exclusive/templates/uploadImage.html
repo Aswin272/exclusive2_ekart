@@ -123,3 +123,154 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropping</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preview-item img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 6px;
+        }
+
+        button#cropButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button#cropButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="uploadForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" id="imageInput" name="image" class="image" multiple required>
+            <div id="previews"></div>
+            <button type="submit" id="cropButton">Crop & Upload</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const imageInput = document.getElementById('imageInput');
+            const cropButton = document.getElementById('cropButton');
+            const previews = document.getElementById('previews');
+            const uploadForm = document.getElementById('uploadForm');
+            let croppers = [];6ssssssssssyy
+
+            // Handle file input change
+            imageInput.addEventListener('change', function (e) {
+                const files = e.target.files;
+                if (!files) return;
+
+                // Clear previous previews
+                previews.innerHTML = '';
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        // Display image and initialize Cropper.js
+                        const image = new Image();
+                        image.src = event.target.result;
+                        image.onload = function () {
+                            const preview = document.createElement('div');
+                            preview.className = 'preview-item';
+                            preview.appendChild(image);
+                            previews.appendChild(preview);
+                            // Initialize Cropper.js after image is loaded
+                            const cropper = new Cropper(image, {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                autoCropArea: 1,
+                                responsive: true,
+                            });
+                            croppers.push(cropper);
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Handle crop and upload
+            cropButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                const formData = new FormData(uploadForm);
+                let processedCount = 0;
+
+                for (let i = 0; i < croppers.length; i++) {
+                    const cropper = croppers[i];
+                    const croppedCanvas = cropper.getCroppedCanvas();
+                    // Convert canvas to Blob and append it to FormData
+                    croppedCanvas.toBlob(function (blob) {
+                        formData.append('croppedImages', blob, `croppedImage${i}.png`);
+                        processedCount++;
+                        if (processedCount === croppers.length) {
+                            // Send form data to server
+                            fetch(uploadForm.action, {
+                                method: 'POST',
+                                body: formData
+                            }).then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            }).then(data => {
+                                console.log(data);
+                                window.location.href = '/product_list'; // Redirect after successful upload
+                            }).catch(error => console.error('Error:', error));
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> {% endcomment %}

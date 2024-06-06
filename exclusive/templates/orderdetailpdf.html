@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -47,7 +47,7 @@
           
           <tr>
             <td colspan="4" class="grand total">GRAND TOTAL</td>
-            <td class="grand total">${{total_order_price}}</td>
+            <td class="grand total">${{order.total_price}}</td>
           </tr>
         </tbody>
       </table>
@@ -57,4 +57,113 @@
       Invoice was created on a computer and is valid without the signature and seal.
     </footer>
   </body>
+</html> {% endcomment %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+</head>
+<body style="margin-top: 10px; background: #eee; font-family: Arial, sans-serif;">
+
+  <div class="container" style="width: 100%; max-width: 800px; margin: auto; background: #fff; padding: 20px; box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);">
+    <div class="row" style="margin-bottom: 10px;">
+      <div class="col-xs-12">
+        <div class="invoice-title" style="text-align: center;">
+          <div class="row" style="margin-bottom: 10px;">
+            <div class="col-xs-12">
+              <img src="http://vergo-kertas.herokuapp.com/assets/img/logo.png" alt="" height="35" style="max-width: 100%;">
+            </div>
+          </div>
+          <h2 style="margin-top: 0; line-height: 1em; font-size: 24px;">Invoice<br>
+          <span class="small" style="font-weight: 300; font-size: 14px;">order #{{order.id}}</span></h2>
+        </div>
+        <hr style="margin-top: 10px; border-color: #ddd;">
+        <div class="row" style="margin-bottom: 10px;">
+          <div class="col-xs-6" style="float: left; width: 50%;">
+            <address style="font-size: 14px;">
+              <strong>Billed To:</strong><br>
+              {{order.user}}<br>
+              {{order.street_address}}, {{order.city}}<br>
+              
+              {{order.state}} <br>
+              {{order.pincode}} <br>
+              
+            </address>
+          </div>
+          
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+          <div class="col-xs-6" style="float: left; width: 50%;">
+            <address style="font-size: 14px;">
+              <strong>Payment Method:</strong><br>
+              {{order.payment}}
+            </address>
+          </div>
+          <div class="col-xs-6 text-right" style="float: right; width: 50%; text-align: right;">
+            <address style="font-size: 14px;">
+              <strong>Order Date:</strong><br>
+              {{order.created_at}}
+            </address>
+          </div>
+        </div>
+        <div class="row" style="margin-bottom: 10px;">
+          <div class="col-md-12" style="width: 100%;">
+            <h3 style="font-size: 18px; margin-bottom: 10px;">ORDER SUMMARY</h3>
+            <table class="table table-striped" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr class="line" style="border-bottom: 1px solid #ccc;">
+                  <td style="padding: 5px; font-size: 14px;"><strong>#</strong></td>
+                  <td class="text-center" style="padding: 5px; text-align: center; font-size: 14px;"><strong>PROJECT</strong></td>
+                  <td class="text-center" style="padding: 5px; text-align: center; font-size: 14px;"><strong>HRS</strong></td>
+                  <td class="text-right" style="padding: 5px; text-align: right; font-size: 14px;"><strong>RATE</strong></td>
+                  
+                </tr>
+              </thead>
+              <tbody>
+                {% for order_item in order_items %}
+                <tr>
+                  <td style="padding: 5px; font-size: 14px;">{{order_item.id}}</td>
+                  <td style="padding: 5px; font-size: 14px;"><strong>{{order_item.product.name}}</strong><br>{{order_item.product.description}}</td>
+                  <td class="text-center" style="padding: 5px; text-align: center; font-size: 14px;">{{order_item.quantity}}</td>
+                  <td class="text-center" style="padding: 5px; text-align: center; font-size: 14px;">${{order_item.price}}</td>
+                  
+                </tr>
+                {% endfor %}
+                {% if order.coupon %}
+                <tr>
+                  <td colspan="3">
+                  </td><td class="text-right"><strong>Coupon</strong></td>
+                  
+                  <td class="text-right"><strong>${{order.coupon.discount}}</strong></td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td colspan="3">
+                  </td><td class="text-right"><strong>Total</strong></td>
+                  
+                  <td class="text-right"><strong>${{order.total_price}}</strong></td>
+                </tr>
+                
+              </tbody>
+            </table>
+
+            
+          </div>									
+        </div>
+        {% comment %} <div class="row">
+          <div class="col-md-12 text-right identity" style="margin-top: 10px; font-size: 1.1em; font-weight: 300;">
+            <p style="font-size: 14px;">Exclusive<br><strong style="font-weight: 600;"></strong></p>
+          </div>
+        </div> {% endcomment %}
+      </div>
+    </div>
+    <!-- END INVOICE -->
+  </div>
+
+</body>
 </html>

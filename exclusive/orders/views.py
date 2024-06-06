@@ -16,6 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
+from django.conf.urls import handler404
+from django.contrib import messages
 
 # Create your views here.
 
@@ -32,7 +34,11 @@ def orderSuccess(request):
             paym=request.POST.get('checkout-pay-method')
             print(paym)
             user=Customers.objects.get(username=username)
-            address=Address.objects.get(pk=selected_address_id)
+            try:
+                
+                address=Address.objects.get(pk=selected_address_id)
+            except Address.DoesNotExist:
+                return HttpResponse("Error:Addrss does not exist")
             payment=paym
             
             
@@ -40,14 +46,12 @@ def orderSuccess(request):
             cart_items=CartItem.objects.filter(cart=cart)
             
             
-            
             for item in cart_items:
                     
                 category_offer = CategoryOffer.objects.filter(category=item.product.Category,
                                                             start_date__lte=timezone.now(),
                                                             end_date__gte=timezone.now()).first()
-                
-                
+                                
                 
                 product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
                     
@@ -67,6 +71,11 @@ def orderSuccess(request):
                     product_price = product_product_price
                 else:
                     product_price = item.product.price
+                    
+                if item.quantity > item.product.quantity:
+                    print("yess it is bigger")
+                    # messages.error(request, f"Quantity for {cart_item.product.name} exceeds available stock.")
+                    return redirect('checkout')
                 
                 item.total_price = product_price * item.quantity
                 
@@ -94,29 +103,25 @@ def orderSuccess(request):
             
             #redirecting to payment home page 
             
-            if payment=='razorpay':
-                payment_data = {
-                    'address': address.pk,
-                    'total_price': str(total_price)
-                }
-                
-                request.session['payment_data'] = payment_data
+            
                 
                 # print("yrssd")
                 
                 # request.session['address']=address.pk
                 # request.session['total_price'] = str(total_price)
                 
-                return redirect('payment-homepage')
+            
                 
         
             if payment=='wallet':
                 print("inside the wallet")
-                wallet,create=Wallet.objects.get_or_create(user=user)
+                wallet=Wallet.objects.get(user=user)
                 if wallet.balance >= total_price:
                     print("wallet balance ",wallet.balance)
                     wallet.balance -= total_price
                     wallet.save()
+                    
+                    Transaction.objects.create(wallet=wallet,amount=total_price)
                     print("wallet after ordering",wallet.balance)
                 else:
                     return HttpResponse("Error: Insufficient balance in wallet")
@@ -129,6 +134,11 @@ def orderSuccess(request):
                                        
                                        pincode=address.pincode,
                                        payment=payment,coupon=coupon)
+            
+            if payment=='wallet':
+                order.payment_status='Paid'
+                order.save()
+                
             
             
             # if payment=='razorpay':
@@ -176,6 +186,12 @@ def orderSuccess(request):
                     product_price = product_product_price
                 else:
                     product_price = cart_item.product.price
+                    
+                # if cart_item.quantity > cart_item.product.quantity:
+                #     print("yess it is bigger")
+                #     # messages.error(request, f"Quantity for {cart_item.product.name} exceeds available stock.")
+                #     return redirect('checkout')
+                    
             
                 last_price= product_price * cart_item.quantity
                 
@@ -190,6 +206,27 @@ def orderSuccess(request):
             if cart.coupon:
                 cart.coupon=None
                 cart.save()
+            
+            print("order_id",order.id)
+            if payment=='razorpay':
+                # payment_data = {
+                #     'address': address.pk,
+                #     'total_price': str(total_price),
+                #     'order_id':order.id
+                # }
+                
+                
+                request.session['total_price'] = str(total_price)
+                request.session['order_id'] = order.id
+                
+                # print("yrssd")
+                
+                # request.session['address']=address.pk
+                # request.session['total_price'] = str(total_price)
+                
+                return redirect('payment-homepage')
+            
+            
             return render(request,'order-success.html')
         
         return redirect('checkout')
@@ -202,7 +239,7 @@ def orderSuccess(request):
 def orders(request):
     user=request.user
     
-    orders=Order.objects.filter(user=user)
+    orders=Order.objects.filter(user=user).order_by('-created_at')
     
     return render(request,'orders.html',{'orders':orders})
 
@@ -250,6 +287,8 @@ def ordercancel(request,pk):
             wallet=Wallet.objects.get(user=user)
             wallet.balance += total_price
             wallet.save() 
+            
+            Transaction.objects.create(wallet=wallet,amount=total_price)
         
         order.is_cancelled = True
         order.save()
@@ -317,12 +356,14 @@ def ordercancel(request,pk):
   
 @login_required
 def orderdetail(request,pk):
-    order = get_object_or_404(Order, pk=pk, user=request.user)
-    order_items = OrderItem.objects.filter(order=order)
-    total_order_price = sum(item.price for item in order_items)
+    try:
+        order = get_object_or_404(Order, pk=pk, user=request.user)
+        order_items = OrderItem.objects.filter(order=order)
+        total_order_price = sum(item.price for item in order_items)
 
-    return render(request,'orderdetailpage.html', {'order': order, 'order_items': order_items, 'total_order_price': total_order_price})
-  
+        return render(request,'orderdetailpage.html', {'order': order, 'order_items': order_items, 'total_order_price': total_order_price})
+    except Exception as e:
+        return render(request,'404.html')
  
  
   
@@ -347,6 +388,7 @@ razorpay_client = razorpay.Client(
     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 
 
+
 def paymenthomepage(request):
     
     # total_price = request.session['total_price']
@@ -354,19 +396,15 @@ def paymenthomepage(request):
     # print(address)
     # print(total_price)
     # total_price = request.session.get('total_price')
-    
-    payment_data = request.session.get('payment_data')
-    if payment_data:
-        address_id = payment_data.get('address')
-        total_price = Decimal(payment_data.get('total_price'))
+    print("home page")
     
     
-    
-    address = Address.objects.get(pk=address_id)
+    total_price=Decimal(request.session.get('total_price'))
     
     print(total_price)
     
     currency='INR'
+    
     
     
     amount=float(total_price) * 100
@@ -405,18 +443,21 @@ def paymenthandler(request):
                     'razorpay_signature': signature
                 }
                 
+                
                 result = razorpay_client.utility.verify_payment_signature(
                     params_dict)
                 if result is not None:
                     # taking total price from session
-                    payment_data = request.session.get('payment_data')
-                    if payment_data:
-                        address_id = payment_data.get('address')
-                        total_price = Decimal(payment_data.get('total_price'))
+                    
+                    total_price=request.session.get('total_price')
+                    
+                    # if payment_data:
+                    #     address_id = payment_data.get('address')
+                    #     total_price = Decimal(payment_data.get('total_price'))
         
+
         
-        
-                    address = Address.objects.get(pk=address_id)
+                    
 
                     amount=float(total_price) * 100
                     try:
@@ -424,102 +465,126 @@ def paymenthandler(request):
                         # capture the payemt
                         razorpay_client.payment.capture(payment_id, amount)
                         
-                        #getting details tto create an order
-                        username=request.session['username']
-                        user=Customers.objects.get(username=username)
+                        order_id=request.session.get('order_id')
+                        print("ordeeeeerrrid",order_id)
+                        order=Order.objects.get(id=order_id)
+                        order.payment_status='Paid'
+                        order.save()
                         
-                        #getting cart and cartitems
-                        cart=Cart.objects.get(customer=user)
-                        cart_items=CartItem.objects.filter(cart=cart)
+                        session_data = []
+                        for key, value in request.session.items():
+                            session_data.append(f'{key}: {value}')
                         
-                        for item in cart_items:
+                        session_details = '<br>'.join(session_data)
+                        
+                        print(session_details)
+                        
+                        del request.session['total_price']
+                        del request.session['order_id']
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        # #getting details tto create an order
+                        # username=request.session['username']
+                        # user=Customers.objects.get(username=username)
+                        
+                        # #getting cart and cartitems
+                        # cart=Cart.objects.get(customer=user)
+                        # cart_items=CartItem.objects.filter(cart=cart)
+                        
+                        # for item in cart_items:
                     
-                            category_offer = CategoryOffer.objects.filter(category=item.product.Category,
-                                                                        start_date__lte=timezone.now(),
-                                                                        end_date__gte=timezone.now()).first()
+                        #     category_offer = CategoryOffer.objects.filter(category=item.product.Category,
+                        #                                                 start_date__lte=timezone.now(),
+                        #                                                 end_date__gte=timezone.now()).first()
                             
                             
                             
-                            product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
+                        #     product_offer=ProductOffer.objects.filter(product=item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
                                 
-                            if category_offer:
-                                category_product_price = item.product.price - (item.product.price * category_offer.discount_percentage / 100)
-                            if product_offer:
-                                product_product_price=item.product.price-product_offer.discount_price
+                        #     if category_offer:
+                        #         category_product_price = item.product.price - (item.product.price * category_offer.discount_percentage / 100)
+                        #     if product_offer:
+                        #         product_product_price=item.product.price-product_offer.discount_price
                             
-                            if category_offer and product_offer:
-                                if category_product_price < product_product_price:
-                                    product_price = category_product_price
-                                else:
-                                    product_price = product_product_price
-                            elif category_offer:
-                                product_price=category_product_price
-                            elif product_offer:
-                                product_price = product_product_price
-                            else:
-                                product_price = item.product.price
+                        #     if category_offer and product_offer:
+                        #         if category_product_price < product_product_price:
+                        #             product_price = category_product_price
+                        #         else:
+                        #             product_price = product_product_price
+                        #     elif category_offer:
+                        #         product_price=category_product_price
+                        #     elif product_offer:
+                        #         product_price = product_product_price
+                        #     else:
+                        #         product_price = item.product.price
                             
-                            item.total_price = product_price * item.quantity
+                        #     item.total_price = product_price * item.quantity
                         
-                        total_price=sum(item.total_price for item in cart_items)
-                        
-                        
-                        coupon=None
-                        if cart.coupon:
-                            print("yes coupon is here")
-                            total_price -= cart.coupon.discount
-                            print("total price",total_price)
-                            coupon=cart.coupon
+                        # total_price=sum(item.total_price for item in cart_items)
                         
                         
-                        order=Order.objects.create(user=user,total_price=total_price,
-                                       street_address=address.street,
-                                       city=address.city,
-                                       district=address.district,
-                                       state=address.state,
+                        # coupon=None
+                        # if cart.coupon:
+                        #     print("yes coupon is here")
+                        #     total_price -= cart.coupon.discount
+                        #     print("total price",total_price)
+                        #     coupon=cart.coupon
+                        
+                        
+                        # order=Order.objects.create(user=user,total_price=total_price,
+                        #                street_address=address.street,
+                        #                city=address.city,
+                        #                district=address.district,
+                        #                state=address.state,
                                        
-                                       pincode=address.pincode,
-                                       payment='razorpay',coupon=coupon)
+                        #                pincode=address.pincode,
+                        #                payment='razorpay',coupon=coupon)
                         
                         
-                        for cart_item in cart_items:
+                        # for cart_item in cart_items:
                  
-                            category_offer = CategoryOffer.objects.filter(category=cart_item.product.Category,
-                                                                        start_date__lte=timezone.now(),
-                                                                        end_date__gte=timezone.now()).first()
+                        #     category_offer = CategoryOffer.objects.filter(category=cart_item.product.Category,
+                        #                                                 start_date__lte=timezone.now(),
+                        #                                                 end_date__gte=timezone.now()).first()
                         
-                            product_offer=ProductOffer.objects.filter(product=cart_item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
+                        #     product_offer=ProductOffer.objects.filter(product=cart_item.product,start_date__lte=timezone.now(),end_date__gte=timezone.now()).first()
                             
-                            if category_offer:
-                                category_product_price = cart_item.product.price - (cart_item.product.price * category_offer.discount_percentage / 100)
-                            if product_offer:
-                                product_product_price=cart_item.product.price - product_offer.discount_price
+                        #     if category_offer:
+                        #         category_product_price = cart_item.product.price - (cart_item.product.price * category_offer.discount_percentage / 100)
+                        #     if product_offer:
+                        #         product_product_price=cart_item.product.price - product_offer.discount_price
                             
-                            if category_offer and product_offer:
-                                if category_product_price < product_product_price:
-                                    product_price = category_product_price
-                                else:
-                                    product_price = product_product_price
-                            elif category_offer:
-                                product_price=category_product_price
-                            elif product_offer:
-                                product_price = product_product_price
-                            else:
-                                product_price = cart_item.product.price
+                        #     if category_offer and product_offer:
+                        #         if category_product_price < product_product_price:
+                        #             product_price = category_product_price
+                        #         else:
+                        #             product_price = product_product_price
+                        #     elif category_offer:
+                        #         product_price=category_product_price
+                        #     elif product_offer:
+                        #         product_price = product_product_price
+                        #     else:
+                        #         product_price = cart_item.product.price
                         
-                            last_price= product_price * cart_item.quantity
+                        #     last_price= product_price * cart_item.quantity
                             
                             
                             
-                            OrderItem.objects.create(order=order,product=cart_item.product,quantity=cart_item.quantity,price=last_price)
-                            cart_item.product.quantity = F('quantity') - cart_item.quantity
-                            cart_item.product.save()
+                        #     OrderItem.objects.create(order=order,product=cart_item.product,quantity=cart_item.quantity,price=last_price)
+                        #     cart_item.product.quantity = F('quantity') - cart_item.quantity
+                        #     cart_item.product.save()
                             
-                        cart_items.delete()
+                        # cart_items.delete()
                         
-                        if cart.coupon:
-                            cart.coupon=None
-                            cart.save()
+                        # if cart.coupon:
+                        #     cart.coupon=None
+                        #     cart.save()
                         
                         
                         # render success page on successful caputre of payment
@@ -581,3 +646,47 @@ def download_order_detail_pdf(request, pk):
         return HttpResponse('Error generating PDF file')
 
     return response
+
+
+def retrypayment(request):
+    order_id=request.POST.get('order_id')
+    print(order_id)
+    order=Order.objects.get(id=order_id)
+    total_price=order.total_price
+
+    
+    request.session['total_price'] = str(total_price)
+    request.session['order_id'] = order.id
+    
+    currency='INR'
+    
+    
+    
+    amount=float(total_price) * 100
+    print(amount)
+    
+    
+    razorpay_order = razorpay_client.order.create(dict(amount=amount,currency=currency,payment_capture='0'))
+    
+    razorpay_order_id=razorpay_order['id']
+    print(razorpay_order)
+    print(razorpay_order_id)
+    callback_url = 'paymenthandler/'
+    
+    
+    
+    context={}
+    context['razorpay_order_id'] = razorpay_order_id
+    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+    context['razorpay_amount'] = amount
+    context['currency'] = currency
+    context['callback_url'] = callback_url
+    
+    return render(request, 'payment.html', context=context)
+
+
+def custom_404_view(request, exception):
+    requested_url = request.path_info
+    context = {'requested_url': requested_url}
+    return render(request, '404.html', context)
+

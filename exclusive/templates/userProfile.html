@@ -4,10 +4,10 @@
 {% block content %}
 
 
-<div class="container">
+<div class="container" style="display:flex">
     <div class="userprofile-leftside">
 
-        <ul class="UserMenu">
+        <ul class="UserMenu" style="width: 170px;">
             <li><a href="">Dashboard</a></li>
             <li><a href="{% url 'user-address' %}">Manage Address</a></li>
             <li><a href="{% url 'orders' %}">Orders</a></li>
@@ -17,13 +17,24 @@
     </div>
 
 
+     {% block innercontent %}
+    
+    
+    
+    
     <div class="userprofile-rightside">
+        
         <div class="user-details">
             {{wallet}}
             
             <h1>{{wallet.balance}}</h1>
+            {% comment %} <a href="{% url 'wallet-transaction' user.id %}"><button>wallet Transaction</button></a> {% endcomment %}
         </div>
     </div>
+
+    {% endblock innercontent %}
+
+   
     
 
 
