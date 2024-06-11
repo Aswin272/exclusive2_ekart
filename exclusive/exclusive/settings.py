@@ -92,16 +92,29 @@ AUTH_USER_MODEL = "customers.Customers"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'exclusive2',
+#         'USER': 'postgres',
+#         'PASSWORD': '12345',
+#         'HOST': 'localhost',    # Or the IP address of your PostgreSQL server
+#         'PORT': '5432',         # Default PostgreSQL port
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'exclusive2',
+        'NAME': 'exclusivedb',
         'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',    # Or the IP address of your PostgreSQL server
+        'PASSWORD': 'qwertyqwerty',
+        'HOST': 'exclusive-db.c12euk6e69yd.us-east-1.rds.amazonaws.com',    # Or the IP address of your PostgreSQL server
         'PORT': '5432',         # Default PostgreSQL port
     }
 }
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
